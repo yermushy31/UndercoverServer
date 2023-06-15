@@ -9,11 +9,16 @@ bool NewServer::InitWsa() {
 }
 
 void NewServer::DisplayClients() {
-    std::lock_guard<std::mutex> lock(clientMutex);
-    for (size_t i = 0; i < connections.size(); i++) {
-        std::cout << "[" << i << "] Client-" << i << std::endl;
+    if (connections.size() != 0) {
+        std::cout << "Which client do you want to connect to?" << std::endl;
+        std::lock_guard<std::mutex> lock(clientMutex);
+        for (size_t i = 0; i < connections.size(); i++) {
+            std::cout << "[" << i << "] Client-" << i << std::endl;
+        }
+    } else {
+        std::cout << "No clients is connected at the moment" << std::endl;
     }
-    std::cout << "Which client do you want to connect to?" << std::endl;
+
 }
 
 void NewServer::CloseConnection(SOCKET s) {
@@ -21,48 +26,24 @@ void NewServer::CloseConnection(SOCKET s) {
     WSACleanup();
 }
 
-
-/*
- *
- * void receiveMessage() {
-    int res;
-    do {
-        res = recv(clientSocket, recvBuffer, sizeof(recvBuffer) - 1, 0);
-        if (res > 0) {
-            recvBuffer[res] = '\0';  // Null-terminate the received data
-            std::cout << recvBuffer << std::endl;
-        }
-        else if (res == 0) {
-            std::cout << "Connection closed by the server." << std::endl;
-        }
-        else {
-            std::cerr << "Receive error." << std::endl;
-        }
-    } while (res > 0);
-}
- *
- *
- */
 void NewServer::ReceiveMessage(SOCKET currentClient) {
     std::thread::id currentThreadId = std::this_thread::get_id();
     std::cout << "New Thread Created with the ID: " << currentThreadId << std::endl;
     std::cout << "Client number " << connections.size() - 1 << " got the ID " << currentThreadId << std::endl;
     int res;
     do {
-        res = recv(currentClient, recvBuffer, sizeof(recvBuffer) - 1 , 0);
+        res = recv(currentClient, recvBuffer, sizeof(recvBuffer) - 1, 0);
         if (res == SOCKET_ERROR)
             std::cout << "RECV error on thread " << currentThreadId << std::endl;
+        if (res > 0) {
 
-        std::cout << "Client number [" << connections.size() - 1 << "] Said: " << std::endl;
-
-        if(res > 0) {
             recvBuffer[res] = '\0';
-            std::cout << recvBuffer << std::endl;
+            std::cout << "Client number [" << connections.size() - 1 << "] Said: " << recvBuffer << std::endl;
         }
     } while (res > 0);
 }
 
-void NewServer::SendAll(int id, const char* data, int totalBytes) {
+void NewServer::SendAll(int id, const char *data, int totalBytes) {
 
     std::lock_guard<std::mutex> lock(clientMutex);
     int bytesSent = 0;
@@ -81,35 +62,53 @@ void NewServer::SendAll(int id, const char* data, int totalBytes) {
 void NewServer::HandleInput() {
     while (inputStr != "quit") {
         if (!connections.empty()) {
-            std::cout << "server~#";
+            std::cout << "server~# ";
+            std::getline(std::cin, inputStr);
         }
-        std::getline(std::cin, inputStr);
-        if (inputStr == "connect") {
-            DisplayClients();
-            int id;
-            std::cin >> id;
-            std::cin.ignore();  // Discard the newline character
-            clientMode = true;
-            while (clientMode) {
-                memset(sendBuffer, 0x0, sizeof(sendBuffer));
-                std::cout << "Client~" << id << "#" << std::endl;
-                std::getline(std::cin, inputStr);
+        if (inputStr.substr(0, 7) == "connect") {
 
-                if (inputStr.find("exit") != std::string::npos) {
-                    id = 0;
-                    clientMode = false;
-                    break;
+            std::istringstream iss(inputStr);
+            std::string command;
+            iss >> command;
+
+            std::string clientId;
+
+            iss >> clientId;
+            std::cin.ignore();
+
+            //DisplayClients();
+            // Discard the newline character
+
+            if (!clientId.empty()) {
+                try {
+                    int id = std::stoi(clientId);
+                    if (id >= 0 && id < connections.size()) {
+                        clientMode = true;
+                        while (clientMode) {
+                            memset(sendBuffer, 0x0, sizeof(sendBuffer));
+                            std::cout << "Client~" << id << "#";
+                            std::getline(std::cin, inputStr);
+
+                            if (inputStr.find("exit") != std::string::npos) {
+                                id = 0;
+                                clientMode = false;
+                            }
+                            SendAll(id, inputStr.c_str(), inputStr.size());
+                        }
+                    } else {
+                        std::cout << "Invalid client ID." << std::endl;
+                    }
+                } catch (const std::exception &e) {
+                    std::cout << "Invalid client ID format. Please enter a valid integer." << std::endl;
                 }
-                SendAll(id, inputStr.c_str(), inputStr.size());
+            } else if (inputStr == "clear") {
+                system("cls");
             }
-        }
-        else if (inputStr == "clear") {
-            system("cls");
         }
     }
 }
 
-SOCKET NewServer::CreateNewSocket(const std::string& ip, int port) {
+SOCKET NewServer::CreateNewSocket(const std::string &ip, int port) {
     WSADATA wsadata;
     WORD dllVersion = MAKEWORD(2, 2);
     if (WSAStartup(dllVersion, &wsadata) != 0) {
@@ -129,7 +128,7 @@ SOCKET NewServer::CreateNewSocket(const std::string& ip, int port) {
     serverAddress.sin_addr.s_addr = inet_addr(ip.c_str());
     serverAddress.sin_port = htons(port);
 
-    if (bind(sock, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
+    if (bind(sock, (SOCKADDR *) &serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
         std::cout << "Bind Error." << std::endl;
         closesocket(sock);
         WSACleanup();
@@ -154,7 +153,7 @@ void NewServer::StartServer() {
     while (true) {
         SOCKADDR_IN newClientAddr;
         int newClientLength = sizeof(newClientAddr);
-        SOCKET clientSocket = accept(serverSocket, (SOCKADDR*)&newClientAddr, &newClientLength);
+        SOCKET clientSocket = accept(serverSocket, (SOCKADDR *) &newClientAddr, &newClientLength);
         if (clientSocket == INVALID_SOCKET) {
             std::cout << "Accept Error." << std::endl;
             CloseConnection(serverSocket);
@@ -169,7 +168,8 @@ void NewServer::StartServer() {
         std::thread recvThread(&NewServer::ReceiveMessage, this, clientSocket);
         recvThread.detach();
 
-        std::cout << "New Host connected, IP " << inet_ntoa(newClientAddr.sin_addr) << ", port " << ntohs(newClientAddr.sin_port) << std::endl;
+        std::cout << "New Host connected, IP " << inet_ntoa(newClientAddr.sin_addr) << ", port "
+                  << ntohs(newClientAddr.sin_port) << std::endl;
     }
 }
 
@@ -178,6 +178,6 @@ NewServer::~NewServer() {
     WSACleanup();
 }
 
-NewServer::NewServer(const std::string& ip, int port) : clientMode(false), serverSocket(INVALID_SOCKET) {
+NewServer::NewServer(const std::string &ip, int port) {
     serverSocket = CreateNewSocket(ip, port);
 }
