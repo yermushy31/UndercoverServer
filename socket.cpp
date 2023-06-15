@@ -21,18 +21,44 @@ void NewServer::CloseConnection(SOCKET s) {
     WSACleanup();
 }
 
+
+/*
+ *
+ * void receiveMessage() {
+    int res;
+    do {
+        res = recv(clientSocket, recvBuffer, sizeof(recvBuffer) - 1, 0);
+        if (res > 0) {
+            recvBuffer[res] = '\0';  // Null-terminate the received data
+            std::cout << recvBuffer << std::endl;
+        }
+        else if (res == 0) {
+            std::cout << "Connection closed by the server." << std::endl;
+        }
+        else {
+            std::cerr << "Receive error." << std::endl;
+        }
+    } while (res > 0);
+}
+ *
+ *
+ */
 void NewServer::ReceiveMessage(SOCKET currentClient) {
     std::thread::id currentThreadId = std::this_thread::get_id();
     std::cout << "New Thread Created with the ID: " << currentThreadId << std::endl;
     std::cout << "Client number " << connections.size() - 1 << " got the ID " << currentThreadId << std::endl;
     int res;
     do {
-        res = recv(currentClient, recvBuffer, sizeof(recvBuffer), 0);
-        if (res == SOCKET_ERROR) {
+        res = recv(currentClient, recvBuffer, sizeof(recvBuffer) - 1 , 0);
+        if (res == SOCKET_ERROR)
             std::cout << "RECV error on thread " << currentThreadId << std::endl;
-        }
+
         std::cout << "Client number [" << connections.size() - 1 << "] Said: " << std::endl;
-        std::cout << recvBuffer << std::endl;
+
+        if(res > 0) {
+            recvBuffer[res] = '\0';
+            std::cout << recvBuffer << std::endl;
+        }
     } while (res > 0);
 }
 
