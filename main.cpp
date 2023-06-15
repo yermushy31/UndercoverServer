@@ -10,7 +10,11 @@ private:
     SOCKET clientSocket;
     SOCKADDR_IN serverAddress;
     char recvBuffer[4096];
+
 public:
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     Client() {
         // Initialize Winsock
         WSADATA wsData;
@@ -31,14 +35,15 @@ public:
         serverAddress.sin_port = htons(5555);
         serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
     }
+#pragma clang diagnostic pop
 
     ~Client() {
         closesocket(clientSocket);
         WSACleanup();
     }
 
+
     void connectToServer() {
-        // Connect to the server
         if (connect(clientSocket, reinterpret_cast<SOCKADDR*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR) {
             std::cerr << "Failed to connect to the server." << std::endl;
             closesocket(clientSocket);
