@@ -50,18 +50,6 @@ public:
         int bytesRead;
 
         while (true) {
-            std::cout << "Client~# ";
-            std::getline(std::cin, input);
-
-            if (input == "exit") {
-                break;
-            }
-
-            if (send(clientSocket, input.c_str(), input.length(), 0) == SOCKET_ERROR) {
-                std::cout << "Failed to send data to the server." << std::endl;
-                break;
-            }
-
             bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
             if (bytesRead == SOCKET_ERROR) {
                 std::cout << "Failed to receive data from the server." << std::endl;
@@ -84,7 +72,7 @@ private:
 
 int main() {
     std::string serverIP = "127.0.0.1";
-    int serverPort = 5555;  // 5555 / 4444
+    int serverPort = 5555;
 
     Client client(serverIP, serverPort);
     if (client.Connect()) {
