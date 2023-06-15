@@ -10,7 +10,6 @@ private:
     SOCKET clientSocket;
     SOCKADDR_IN serverAddress;
     char recvBuffer[4096];
-
 public:
     Client() {
         // Initialize Winsock
@@ -19,7 +18,6 @@ public:
             std::cerr << "Failed to initialize Winsock." << std::endl;
             exit(1);
         }
-
         // Create client socket
         clientSocket = socket(AF_INET, SOCK_STREAM, 0);
         if (clientSocket == INVALID_SOCKET) {
