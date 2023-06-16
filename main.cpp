@@ -1,11 +1,9 @@
 #pragma comment(lib, "ws2_32.lib")
-
 #include <iostream>
 #include <string>
 #include <WS2tcpip.h>
 
-#include <openssl/ssl.h>
-#include <openssl/err.h>
+#include "encrypt.h"
 
 /*https://reversea.me/index.php/hybrid-encryption-sockets-using-crypto/ */
 
@@ -49,7 +47,8 @@ public:
     }
 
     void Run() {
-        std::cout << "Connected to the server. Enter 'exit' to quit." << std::endl;
+        Encryption encrypt;
+        encrypt.CheckSslVersion();
 
         std::string input;
         char buffer[4096];
@@ -79,7 +78,6 @@ private:
 int main() {
     std::string serverIP = "127.0.0.1";
     int serverPort = 5555;
-
     Client client(serverIP, serverPort);
     if (client.Connect()) {
         client.Run();

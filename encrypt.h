@@ -5,10 +5,15 @@
 #ifndef UNDERCOVERCLIENT_ENCRYPT_H
 #define UNDERCOVERCLIENT_ENCRYPT_H
 
+
+#include <iostream>
+
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
 class Encryption {
 public:
-    void CheckSslVersion();
-
+    void CheckSslVersion(void);
 };
 
 
