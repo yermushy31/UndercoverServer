@@ -24,7 +24,7 @@ public:
     bool SSLHandshake();
     void SendSSL(const char* buffer);
 private:
-    std::vector<SSL*> connections;
+    SSL* ssl;
     SSL_CTX* SSLContext = nullptr;
     const char* Certificate = nullptr;
     const char* PrivateKey = nullptr;
