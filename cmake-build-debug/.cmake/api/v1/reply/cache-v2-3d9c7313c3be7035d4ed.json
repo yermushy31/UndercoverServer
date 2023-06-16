@@ -1078,6 +1078,158 @@
 			"value" : "FALSE"
 		},
 		{
+			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_OpenSSL",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Details about finding OpenSSL"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "[C:/Program Files/OpenSSL-Win64/lib/libcrypto.lib][C:/Program Files/OpenSSL-Win64/include][c ][v3.1.1()]"
+		},
+		{
+			"name" : "LIB_EAY_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "LIB_EAY_DEBUG-NOTFOUND"
+		},
+		{
+			"name" : "LIB_EAY_LIBRARY_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "LIB_EAY_LIBRARY_DEBUG-NOTFOUND"
+		},
+		{
+			"name" : "LIB_EAY_LIBRARY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "LIB_EAY_LIBRARY_RELEASE-NOTFOUND"
+		},
+		{
+			"name" : "LIB_EAY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Program Files/OpenSSL-Win64/lib/libcrypto.lib"
+		},
+		{
+			"name" : "OPENSSL_APPLINK_SOURCE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Program Files/OpenSSL-Win64/include/openssl/applink.c"
+		},
+		{
+			"name" : "OPENSSL_INCLUDE_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "PATH",
+			"value" : "C:/Program Files/OpenSSL-Win64/include"
+		},
+		{
+			"name" : "SSL_EAY_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "SSL_EAY_DEBUG-NOTFOUND"
+		},
+		{
+			"name" : "SSL_EAY_LIBRARY_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "SSL_EAY_LIBRARY_DEBUG-NOTFOUND"
+		},
+		{
+			"name" : "SSL_EAY_LIBRARY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "SSL_EAY_LIBRARY_RELEASE-NOTFOUND"
+		},
+		{
+			"name" : "SSL_EAY_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Program Files/OpenSSL-Win64/lib/libssl.lib"
+		},
+		{
 			"name" : "UndercoverClient_BINARY_DIR",
 			"properties" : 
 			[
