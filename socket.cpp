@@ -106,13 +106,8 @@ void NewServer::HandleInput() {
 }
 
 SOCKET NewServer::CreateNewSocket(const std::string &ip, int port) {
-    WSADATA wsadata;
-    WORD dllVersion = MAKEWORD(2, 2);
-    if (WSAStartup(dllVersion, &wsadata) != 0) {
-        std::cout << "Error WSAStartup " << std::endl;
-        return INVALID_SOCKET;
-    }
 
+    if(this->InitWsa());
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
         std::cout << "Invalid Socket." << std::endl;
@@ -165,8 +160,7 @@ void NewServer::StartServer() {
         std::thread recvThread(&NewServer::ReceiveMessage, this, clientSocket);
         recvThread.detach();
 
-        std::cout << "New Host connected, IP " << inet_ntoa(newClientAddr.sin_addr) << ", port "
-                  << ntohs(newClientAddr.sin_port) << std::endl;
+        std::cout << "New Host connected, IP " << inet_ntoa(newClientAddr.sin_addr) << ", port " << ntohs(newClientAddr.sin_port) << std::endl;
     }
 }
 

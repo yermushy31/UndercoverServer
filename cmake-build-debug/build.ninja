@@ -73,6 +73,14 @@ build CMakeFiles\UndercoverServer.dir\encrypt.cpp.obj: CXX_COMPILER__UndercoverS
   TARGET_COMPILE_PDB = CMakeFiles\UndercoverServer.dir\
   TARGET_PDB = UndercoverServer.pdb
 
+build CMakeFiles\UndercoverServer.dir\prototype.cpp.obj: CXX_COMPILER__UndercoverServer_Debug C$:\Users\yermushy\CLionProjects\UndercoverServer\prototype.cpp || cmake_object_order_depends_target_UndercoverServer
+  FLAGS = /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -MDd -Zi -std:c++17
+  INCLUDES = -I"C:\Program Files\OpenSSL-Win64\include"
+  OBJECT_DIR = CMakeFiles\UndercoverServer.dir
+  OBJECT_FILE_DIR = CMakeFiles\UndercoverServer.dir
+  TARGET_COMPILE_PDB = CMakeFiles\UndercoverServer.dir\
+  TARGET_PDB = UndercoverServer.pdb
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target UndercoverServer
@@ -81,7 +89,7 @@ build CMakeFiles\UndercoverServer.dir\encrypt.cpp.obj: CXX_COMPILER__UndercoverS
 #############################################
 # Link the executable UndercoverServer.exe
 
-build UndercoverServer.exe: CXX_EXECUTABLE_LINKER__UndercoverServer_Debug CMakeFiles\UndercoverServer.dir\main.cpp.obj CMakeFiles\UndercoverServer.dir\socket.cpp.obj CMakeFiles\UndercoverServer.dir\encrypt.cpp.obj | C$:\Program$ Files\OpenSSL-Win64\lib\VC\libssl64MDd.lib C$:\Program$ Files\OpenSSL-Win64\lib\VC\libcrypto64MDd.lib
+build UndercoverServer.exe: CXX_EXECUTABLE_LINKER__UndercoverServer_Debug CMakeFiles\UndercoverServer.dir\main.cpp.obj CMakeFiles\UndercoverServer.dir\socket.cpp.obj CMakeFiles\UndercoverServer.dir\encrypt.cpp.obj CMakeFiles\UndercoverServer.dir\prototype.cpp.obj | C$:\Program$ Files\OpenSSL-Win64\lib\VC\libssl64MDd.lib C$:\Program$ Files\OpenSSL-Win64\lib\VC\libcrypto64MDd.lib
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -MDd -Zi
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:console
   LINK_LIBRARIES = "C:\Program Files\OpenSSL-Win64\lib\VC\libssl64MDd.lib"  "C:\Program Files\OpenSSL-Win64\lib\VC\libcrypto64MDd.lib"  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib

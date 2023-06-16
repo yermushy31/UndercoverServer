@@ -9,11 +9,7 @@
 #include <mutex>
 #include <winsock2.h>
 
-#include "encrypt.h"
-
 #pragma comment(lib, "ws2_32.lib")
-
-
 
 class NewServer {
 public:
@@ -33,17 +29,14 @@ private:
 
     std::mutex clientMutex;
     std::vector<SOCKET> connections;
-    std::string inputStr;
-
     bool clientMode;
-
     char recvBuffer[4096];
     char sendBuffer[4096];
+    std::string inputStr;
 
     WSADATA wsadata;
     WORD dllVersion = MAKEWORD(2, 1);
     SOCKET serverSocket;
     std::thread inputThread;
-
 };
 
