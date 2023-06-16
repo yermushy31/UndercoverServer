@@ -76,9 +76,6 @@ void NewServer::HandleInput() {
             iss >> clientId;
             std::cin.ignore();
 
-            //DisplayClients();
-            // Discard the newline character
-
             if (!clientId.empty()) {
                 try {
                     int id = std::stoi(clientId);
