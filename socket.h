@@ -9,6 +9,7 @@
 #include <mutex>
 #include <winsock2.h>
 
+#include "OpenSSLWrapper.h"
 #pragma comment(lib, "ws2_32.lib")
 
 class NewServer {
@@ -20,15 +21,16 @@ public:
 private:
     bool InitWsa();
     void DisplayClients();
-    void CloseConnection(SOCKET s);
-    void ReceiveMessage(SOCKET currentClient);
+    void CloseConnection(SSL* ssl);
+    void ReceiveMessage(SSL* ssl);
     void SendAll(int id, const char* data, int totalBytes);
     void HandleInput();
 
     SOCKET CreateNewSocket(const std::string& ip, int port);
 
     std::mutex clientMutex;
-    std::vector<SOCKET> connections;
+    std::vector<SSL*> connections;
+
     bool clientMode;
     char recvBuffer[4096];
     char sendBuffer[4096];
@@ -38,5 +40,6 @@ private:
     WORD dllVersion = MAKEWORD(2, 1);
     SOCKET serverSocket;
     std::thread inputThread;
+    OpenSSLHelper opensslHelper;
+    SSL_CTX* sslContext;
 };
-
