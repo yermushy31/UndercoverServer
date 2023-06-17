@@ -1,6 +1,6 @@
 # UndercoverServer
 
-For educational reasearch i am willing to make a Remote Administration tool that can perform plenty of actions.
+For educational research i am willing to make a Remote Administration tool that can perform plenty of actions.
 
 The main goal for me is to discover network security stacked with Oriented object language like C++.
 
