@@ -3,8 +3,16 @@ project(UndercoverServer)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(UndercoverServer main.cpp socket.cpp socket.h encrypt.cpp encrypt.h prototype.cpp)
+# Add the source files
+set(SOURCES main.cpp socket.cpp socket.h encrypt.cpp encrypt.h prototype.cpp)
 
+# Create the executable target
+add_executable(UndercoverServer ${SOURCES})
+
+# Link OpenSSL
 find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBRARIES})
+target_include_directories(UndercoverServer PRIVATE ${OPENSSL_INCLUDE_DIR})
+target_link_libraries(UndercoverServer PRIVATE ${OPENSSL_LIBRARIES})
+
+# Link winsock2
+target_link_libraries(UndercoverServer PRIVATE ws2_32)
