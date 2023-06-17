@@ -1,85 +1,87 @@
+#pragma comment(lib, "ws2_32.lib")
 #include <iostream>
 #include <string>
-#include <thread>
-#include <WinSock2.h>
+#include <WS2tcpip.h>
 
-#pragma comment(lib, "ws2_32.lib")
+#include "encrypt.h"
+
+/*https://reversea.me/index.php/hybrid-encryption-sockets-using-crypto/ */
 
 class Client {
-private:
-    SOCKET clientSocket;
-    SOCKADDR_IN serverAddress;
-    char recvBuffer[4096];
-
 public:
+    Client(const std::string& serverIP, int serverPort)
+            : serverIP(serverIP), serverPort(serverPort), clientSocket(INVALID_SOCKET) {}
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    Client() {
-        // Initialize Winsock
+    bool Connect() {
         WSADATA wsData;
         if (WSAStartup(MAKEWORD(2, 2), &wsData) != 0) {
-            std::cerr << "Failed to initialize Winsock." << std::endl;
-            exit(1);
+            std::cout << "Failed to initialize Winsock." << std::endl;
+            return false;
         }
-        // Create client socket
+
         clientSocket = socket(AF_INET, SOCK_STREAM, 0);
         if (clientSocket == INVALID_SOCKET) {
-            std::cerr << "Failed to create client socket." << std::endl;
+            std::cout << "Failed to create socket." << std::endl;
             WSACleanup();
-            exit(1);
+            return false;
         }
 
-        // Set server address
+        sockaddr_in serverAddress{};
         serverAddress.sin_family = AF_INET;
-        serverAddress.sin_port = htons(5555);
-        serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
-    }
-#pragma clang diagnostic pop
+        serverAddress.sin_port = htons(serverPort);
+        if (inet_pton(AF_INET, serverIP.c_str(), &(serverAddress.sin_addr)) <= 0) {
+            std::cout << "Invalid address or address not supported." << std::endl;
+            closesocket(clientSocket);
+            WSACleanup();
+            return false;
+        }
 
-    ~Client() {
+        if (connect(clientSocket, (sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
+            std::cout << "Failed to connect to the server." << std::endl;
+            closesocket(clientSocket);
+            WSACleanup();
+            return false;
+        }
+
+        return true;
+    }
+
+    void Run() {
+        Encryption encrypt;
+        encrypt.CheckSslVersion();
+
+        std::string input;
+        char buffer[4096];
+        int bytesRead;
+
+        while (true) {
+            bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+            if (bytesRead == SOCKET_ERROR) {
+                std::cout << "Failed to receive data from the server." << std::endl;
+                break;
+            }
+
+            buffer[bytesRead] = '\0';
+            std::cout << "Server response: " << buffer << std::endl;
+        }
+
         closesocket(clientSocket);
         WSACleanup();
     }
 
-
-    void connectToServer() {
-        if (connect(clientSocket, reinterpret_cast<SOCKADDR*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR) {
-            std::cerr << "Failed to connect to the server." << std::endl;
-            closesocket(clientSocket);
-            WSACleanup();
-            exit(1);
-        }
-    }
-
-    void receiveMessage() {
-        int bytesRead;
-        do {
-            bytesRead = recv(clientSocket, recvBuffer, sizeof(recvBuffer) - 1, 0);
-            if (bytesRead > 0) {
-                recvBuffer[bytesRead] = '\0';
-                //letsgooooooooooooooooooooooooo
-                std::cout << recvBuffer << std::endl;
-            }
-            else if (bytesRead == 0) {
-                std::cout << "Connection closed by the server." << std::endl;
-            }
-            else {
-                std::cerr << "Receive error." << std::endl;
-            }
-        } while (bytesRead > 0);
-    }
-
-    void start() {
-        connectToServer();
-        std::thread recvThread(&Client::receiveMessage, this);
-        recvThread.join();
-    }
+private:
+    std::string serverIP;
+    int serverPort;
+    SOCKET clientSocket;
 };
 
 int main() {
-    Client client;
-    client.start();
+    std::string serverIP = "127.0.0.1";
+    int serverPort = 5555;
+    Client client(serverIP, serverPort);
+    if (client.Connect()) {
+        client.Run();
+    }
 
     return 0;
 }

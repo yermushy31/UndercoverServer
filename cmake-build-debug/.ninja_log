@@ -1,4 +1,12 @@
 # ninja log v5
-4	862	7085224297502572	CMakeFiles/UndercoverServer.dir/socket.cpp.obj	faf9bc90375542b9
-0	974	7085224298622636	CMakeFiles/UndercoverServer.dir/main.cpp.obj	74f33e521e11ebb6
-974	1225	7085224301067304	UndercoverServer.exe	8f7875b774e50bb5
+822	944	7086095814777603	UndercoverClient.exe	11cc9d0476f989f
+0	737	7086111752172959	CMakeFiles/UndercoverClient.dir/main.cpp.obj	d5aed21f2ec9f021
+0	270	7086112815015863	build.ninja	91862c958bf7989d
+3	513	7086111749932990	CMakeFiles/UndercoverClient.dir/encrypt.cpp.obj	41f8cd3a10864a8a
+5	601	7086112829123690	CMakeFiles/UndercoverClient.dir/encrypt.cpp.obj	ad3fe25c48abd832
+0	981	7086112832923716	CMakeFiles/UndercoverClient.dir/main.cpp.obj	ceaa72076b52dc88
+5	439	7086112950644863	CMakeFiles/UndercoverClient.dir/encrypt.cpp.obj	ad3fe25c48abd832
+1	741	7086112953656165	CMakeFiles/UndercoverClient.dir/main.cpp.obj	ceaa72076b52dc88
+742	939	7086112955538200	UndercoverClient.exe	6c395ed3b0073d9
+0	804	7086113590483461	CMakeFiles/UndercoverClient.dir/main.cpp.obj	ceaa72076b52dc88
+804	952	7086113591791515	UndercoverClient.exe	6c395ed3b0073d9
