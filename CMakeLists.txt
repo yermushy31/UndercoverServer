@@ -3,7 +3,7 @@ project(UndercoverClient)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(UndercoverClient main.cpp encrypt.cpp encrypt.h)
+add_executable(UndercoverClient main.cpp)
 
 find_package(OpenSSL REQUIRED)
 include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})

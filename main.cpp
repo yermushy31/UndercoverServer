@@ -2,15 +2,13 @@
 #include <iostream>
 #include <string>
 #include <WS2tcpip.h>
-
-#include "encrypt.h"
-
-/*https://reversea.me/index.php/hybrid-encryption-sockets-using-crypto/ */
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 class Client {
 public:
     Client(const std::string& serverIP, int serverPort)
-            : serverIP(serverIP), serverPort(serverPort), clientSocket(INVALID_SOCKET) {}
+            : serverIP(serverIP), serverPort(serverPort), clientSocket(INVALID_SOCKET), sslContext(nullptr), sslSocket(nullptr) {}
 
     bool Connect() {
         WSADATA wsData;
@@ -43,20 +41,53 @@ public:
             return false;
         }
 
+        // Initialize OpenSSL
+        SSL_library_init();
+        SSL_load_error_strings();
+        OpenSSL_add_all_algorithms();
+
+        // Create SSL context
+        const SSL_METHOD* method = TLS_client_method(); // Use SSLv23 method for compatibility
+        sslContext = SSL_CTX_new(method);
+        if (!sslContext) {
+            std::cout << "Failed to create SSL context." << std::endl;
+            closesocket(clientSocket);
+            WSACleanup();
+            return false;
+        }
+
+        // Attach SSL socket to the SSL context
+        sslSocket = SSL_new(sslContext);
+        if (!sslSocket) {
+            std::cout << "Failed to create SSL socket." << std::endl;
+            SSL_CTX_free(sslContext);
+            closesocket(clientSocket);
+            WSACleanup();
+            return false;
+        }
+        SSL_set_fd(sslSocket, clientSocket);
+
+        // Perform SSL handshake
+        if (SSL_connect(sslSocket) != 1) {
+            std::cout << "Failed to perform SSL handshake." << std::endl;
+            SSL_free(sslSocket);
+            SSL_CTX_free(sslContext);
+            closesocket(clientSocket);
+            WSACleanup();
+            return false;
+        }
+
         return true;
     }
 
     void Run() {
-        Encryption encrypt;
-        encrypt.CheckSslVersion();
-
         std::string input;
         char buffer[4096];
         int bytesRead;
 
         while (true) {
-            bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-            if (bytesRead == SOCKET_ERROR) {
+            bytesRead = SSL_read(sslSocket, buffer, sizeof(buffer) - 1);
+            if (bytesRead <= 0) {
                 std::cout << "Failed to receive data from the server." << std::endl;
                 break;
             }
@@ -65,6 +96,9 @@ public:
             std::cout << "Server response: " << buffer << std::endl;
         }
 
+        SSL_shutdown(sslSocket);
+        SSL_free(sslSocket);
+        SSL_CTX_free(sslContext);
         closesocket(clientSocket);
         WSACleanup();
     }
@@ -73,6 +107,8 @@ private:
     std::string serverIP;
     int serverPort;
     SOCKET clientSocket;
+    SSL_CTX* sslContext;
+    SSL* sslSocket;
 };
 
 int main() {
