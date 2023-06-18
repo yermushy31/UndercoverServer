@@ -47,7 +47,7 @@ public:
         OpenSSL_add_all_algorithms();
 
         // Create SSL context
-        const SSL_METHOD* method = TLS_client_method(); // Use SSLv23 method for compatibility
+        const SSL_METHOD* method = SSLv23_client_method(); // Use SSLv23 method for compatibility
         sslContext = SSL_CTX_new(method);
         if (!sslContext) {
             std::cout << "Failed to create SSL context." << std::endl;
@@ -115,8 +115,10 @@ int main() {
     std::string serverIP = "127.0.0.1";
     int serverPort = 5555;
     Client client(serverIP, serverPort);
-    if (client.Connect()) {
-        client.Run();
+    while(true) {
+        if (client.Connect()) {
+            client.Run();
+        }
     }
 
     return 0;
