@@ -575,6 +575,9 @@ CMakeFiles/UndercoverServer.dir/main.cpp.obj
  C:/Program Files/OpenSSL-Win64/include/openssl/srtp.h
  C:/Program Files/OpenSSL-Win64/include/openssl/err.h
 
+CMakeFiles/UndercoverServer.dir/sessions.cpp.obj
+ C:/Users/vecto/CLionProjects/UndercoverServer/sessions.cpp
+
 CMakeFiles/UndercoverServer.dir/socket.cpp.obj
  C:/Users/vecto/CLionProjects/UndercoverServer/socket.cpp
  C:/Users/vecto/CLionProjects/UndercoverServer/socket.h

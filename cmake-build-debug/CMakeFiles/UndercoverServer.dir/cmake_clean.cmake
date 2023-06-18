@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/UndercoverServer.dir/OpenSSLWrapper.cpp.obj.d"
   "CMakeFiles/UndercoverServer.dir/main.cpp.obj"
   "CMakeFiles/UndercoverServer.dir/main.cpp.obj.d"
+  "CMakeFiles/UndercoverServer.dir/sessions.cpp.obj"
+  "CMakeFiles/UndercoverServer.dir/sessions.cpp.obj.d"
   "CMakeFiles/UndercoverServer.dir/socket.cpp.obj"
   "CMakeFiles/UndercoverServer.dir/socket.cpp.obj.d"
   "UndercoverServer.exe"

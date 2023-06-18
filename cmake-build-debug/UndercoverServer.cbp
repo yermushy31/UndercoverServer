@@ -93,6 +93,12 @@
 		<Unit filename="C:/Users/vecto/CLionProjects/UndercoverServer/main.cpp">
 			<Option target="UndercoverServer"/>
 		</Unit>
+		<Unit filename="C:/Users/vecto/CLionProjects/UndercoverServer/sessions.cpp">
+			<Option target="UndercoverServer"/>
+		</Unit>
+		<Unit filename="C:/Users/vecto/CLionProjects/UndercoverServer/sessions.h">
+			<Option target="UndercoverServer"/>
+		</Unit>
 		<Unit filename="C:/Users/vecto/CLionProjects/UndercoverServer/socket.cpp">
 			<Option target="UndercoverServer"/>
 		</Unit>

@@ -573,6 +573,8 @@ CMakeFiles/UndercoverServer.dir/main.cpp.obj: C:/Users/vecto/CLionProjects/Under
   C:/Program\ Files/OpenSSL-Win64/include/openssl/srtp.h \
   C:/Program\ Files/OpenSSL-Win64/include/openssl/err.h
 
+CMakeFiles/UndercoverServer.dir/sessions.cpp.obj: C:/Users/vecto/CLionProjects/UndercoverServer/sessions.cpp
+
 CMakeFiles/UndercoverServer.dir/socket.cpp.obj: C:/Users/vecto/CLionProjects/UndercoverServer/socket.cpp \
   C:/Users/vecto/CLionProjects/UndercoverServer/socket.h \
   C:/Program\ Files/JetBrains/CLion\ 2023.1.3/bin/mingw/lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/iostream \
@@ -1803,6 +1805,8 @@ C:/Program\ Files/JetBrains/CLion\ 2023.1.3/bin/mingw/x86_64-w64-mingw32/include
 C:/Program\ Files/JetBrains/CLion\ 2023.1.3/bin/mingw/x86_64-w64-mingw32/include/synchapi.h:
 
 C:/Program\ Files/JetBrains/CLion\ 2023.1.3/bin/mingw/lib/gcc/x86_64-w64-mingw32/11.2.0/include/avx512bwintrin.h:
+
+C:/Users/vecto/CLionProjects/UndercoverServer/sessions.cpp:
 
 C:/Program\ Files/JetBrains/CLion\ 2023.1.3/bin/mingw/lib/gcc/x86_64-w64-mingw32/11.2.0/include/avx512vbmiintrin.h:
 

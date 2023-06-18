@@ -4,7 +4,7 @@ project(UndercoverServer)
 set(CMAKE_CXX_STANDARD 17)
 
 # Add the source files
-set(SOURCES main.cpp socket.cpp OpenSSLWrapper.cpp socket.h OpenSSLWrapper.h)
+set(SOURCES main.cpp socket.cpp OpenSSLWrapper.cpp socket.h OpenSSLWrapper.h sessions.h sessions.cpp)
 
 # Create the executable target
 add_executable(UndercoverServer ${SOURCES})
