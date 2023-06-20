@@ -1,1 +1,0 @@
- "C:/Program Files/OpenSSL-Win64/lib/libssl.lib" "C:/Program Files/OpenSSL-Win64/lib/libcrypto.lib" -lws2_32 "C:/Program Files/OpenSSL-Win64/lib/libssl.lib" "C:/Program Files/OpenSSL-Win64/lib/libcrypto.lib" -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

@@ -2,5 +2,4 @@
 0	1131	7086282798896021	CMakeFiles/UndercoverServer.dir/socket.cpp.obj	354344f01e3ebac7
 0	1043	7086273003021953	CMakeFiles/UndercoverServer.dir/main.cpp.obj	86613207009fe54b
 1132	1240	7086282799780325	UndercoverServer.exe	59f6e7acca6a20fa
-1	134	7086289140086276	build.ninja	fefa0b022a18512e
-13	1340	7086265823778661	CMakeFiles/UndercoverServer.dir/encrypt.cpp.obj	b7e6b6563198abf5
+1	134	7089548526758281	build.ninja	fefa0b022a18512e

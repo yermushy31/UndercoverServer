@@ -58,7 +58,10 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-g -fdiagnostics-color=always"
+					"fragment" : "/DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -MDd -Zi"
+				},
+				{
+					"fragment" : "-std:c++17"
 				}
 			],
 			"includes" : 
@@ -93,40 +96,40 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-g",
+				"fragment" : "/DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -MDd -Zi",
 				"role" : "flags"
 			},
 			{
-				"fragment" : "",
+				"fragment" : "/machine:x64 /debug /INCREMENTAL /subsystem:console",
 				"role" : "flags"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\libssl.lib\"",
+				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\VC\\libssl64MDd.lib\"",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\libcrypto.lib\"",
+				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\VC\\libcrypto64MDd.lib\"",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 3,
-				"fragment" : "-lws2_32",
+				"fragment" : "ws2_32.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 3,
-				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\libssl.lib\"",
+				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\VC\\libssl64MDd.lib\"",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 3,
-				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\libcrypto.lib\"",
+				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\VC\\libcrypto64MDd.lib\"",
 				"role" : "libraries"
 			},
 			{
-				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
+				"fragment" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib",
 				"role" : "libraries"
 			}
 		],

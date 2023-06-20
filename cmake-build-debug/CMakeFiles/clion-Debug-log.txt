@@ -1,4 +1,17 @@
-"C:\Program Files\JetBrains\CLion 2023.1.3\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" -S C:\Users\vecto\CLionProjects\UndercoverServer -B C:\Users\vecto\CLionProjects\UndercoverServer\cmake-build-debug
+"C:\Program Files\JetBrains\CLion 2023.1.3\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2023.1.3/bin/ninja/win/x64/ninja.exe" -G Ninja -S C:\Users\yermushy\CLionProjects\UndercoverServer -B C:\Users\yermushy\CLionProjects\UndercoverServer\cmake-build-debug
+-- The C compiler identification is MSVC 19.31.31104.0
+-- The CXX compiler identification is MSVC 19.31.31104.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.31.31103/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.31.31103/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found OpenSSL: optimized;C:/Program Files/OpenSSL-Win64/lib/VC/libcrypto64MD.lib;debug;C:/Program Files/OpenSSL-Win64/lib/VC/libcrypto64MDd.lib (found version "3.1.1")  
 -- Configuring done
 -- Generating done
--- Build files have been written to: C:/Users/vecto/CLionProjects/UndercoverServer/cmake-build-debug
+-- Build files have been written to: C:/Users/yermushy/CLionProjects/UndercoverServer/cmake-build-debug
