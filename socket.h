@@ -8,7 +8,8 @@
 #include <thread>
 #include <mutex>
 #include <winsock2.h>
-
+#include <ws2tcpip.h>
+#include <io.h>
 
 #include "OpenSSLWrapper.h"
 #pragma comment(lib, "ws2_32.lib")
@@ -51,7 +52,7 @@ private:
     char sendBuffer[4096];
     std::string inputStr;
     WSADATA wsadata;
-    WORD dllVersion = MAKEWORD(2, 1);
+    WORD dllVersion = MAKEWORD(2, 2);
     SOCKET serverSocket;
     std::thread recvThread;
     std::thread inputThread;

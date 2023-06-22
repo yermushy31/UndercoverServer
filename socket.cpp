@@ -16,6 +16,7 @@ bool NewServer::InitWsa() {
     return true;
 }
 
+
 void NewServer::DisplayClients() {
     if (connections.size() != 0) {
         std::cout << "Clients List >>>" << std::endl;
@@ -29,6 +30,9 @@ void NewServer::DisplayClients() {
     }
 }
 
+
+
+
 void NewServer::ReceiveMessage(SSL* ssl) {
     std::thread::id currentThreadId = std::this_thread::get_id();
     std::cout << "New Thread Created with the ID: " << currentThreadId << std::endl;
@@ -41,7 +45,7 @@ void NewServer::ReceiveMessage(SSL* ssl) {
         res = SSL_read(ssl, recvBuffer, sizeof(recvBuffer) - 1);
         if (res > 0) {
             recvBuffer[res] = '\0';
-            std::cout << "\n Client number [" << connections.size() - 1 << "] Said: " << recvBuffer << std::endl;
+            std::cout  << recvBuffer;
         } else {
             continueReceiving = false;
         }
@@ -91,6 +95,17 @@ void NewServer::HandleInput() {
                             if (inputStr.find("exit") != std::string::npos) {
                                 id = 0;
                                 break;
+                            }
+                            if (inputStr.find("scmd") != std::string::npos) {
+                                while(true) {
+                                    if (inputStr.find("exit") != std::string::npos) {
+
+                                        break;
+                                    }
+                                    std::cout << "Client~" << id << "[CMD]#";
+                                    std::getline(std::cin, inputStr);
+                                    SendMessage(id, inputStr.c_str(), inputStr.size());
+                                }
                             }
                             SendMessage(id, inputStr.c_str(), inputStr.size());
                         }
@@ -144,7 +159,7 @@ SOCKET NewServer::CreateNewSocket(const std::string& ip, int port) {
     }
 
     if (this->InitWsa()) {
-        SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
+        SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (sock == INVALID_SOCKET) {
             std::cout << "Invalid Socket." << std::endl;
             WSACleanup();
