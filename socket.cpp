@@ -41,7 +41,7 @@ void NewServer::ReceiveMessage(SSL* ssl) {
         res = SSL_read(ssl, recvBuffer, sizeof(recvBuffer) - 1);
         if (res > 0) {
             recvBuffer[res] = '\0';
-            std::cout << "Client number [" << connections.size() - 1 << "] Said: " << recvBuffer << std::endl;
+            std::cout << "\n Client number [" << connections.size() - 1 << "] Said: " << recvBuffer << std::endl;
         } else {
             continueReceiving = false;
         }
@@ -52,7 +52,7 @@ void NewServer::ReceiveMessage(SSL* ssl) {
     connections.erase(connections.begin() + connections.size() - 1);
 }
 
-void NewServer::SendAll(int id, const char* data, int totalBytes) {
+void NewServer::SendMessage(int id, const char *data, int totalBytes) {
     std::lock_guard<std::mutex> lock(clientMutex);
     int bytesSent = 0;
     while (bytesSent < totalBytes) {
@@ -92,7 +92,7 @@ void NewServer::HandleInput() {
                                 id = 0;
                                 break;
                             }
-                            SendAll(id, inputStr.c_str(), inputStr.size());
+                            SendMessage(id, inputStr.c_str(), inputStr.size());
                         }
                     } else {
                         std::cout << "Invalid client ID." << std::endl;
@@ -132,9 +132,7 @@ void NewServer::HandleInput() {
             system("cls");
         }
         else if (inputStr == "quit") {
-            terminateProgram = true;
             Cleanup();
-            break;
         }
     } while (!terminateProgram);
 }
@@ -219,7 +217,7 @@ void NewServer::StartServer() {
     }
 }
 
-int NewServer::Cleanup() {
+void NewServer::Cleanup() {
     terminateProgram = true;
     for (int i = 0; i < connections.size(); i++) {
         if (connections[i].ssl) {
@@ -234,5 +232,5 @@ int NewServer::Cleanup() {
     opensslHelper.Cleanup();
     closesocket(serverSocket);
     WSACleanup();
-    return 0;
+    exit(1);
 }

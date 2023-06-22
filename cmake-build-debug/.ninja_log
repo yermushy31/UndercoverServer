@@ -1,5 +1,12 @@
 # ninja log v5
-0	1131	7086282798896021	CMakeFiles/UndercoverServer.dir/socket.cpp.obj	354344f01e3ebac7
-0	1043	7086273003021953	CMakeFiles/UndercoverServer.dir/main.cpp.obj	86613207009fe54b
+1	1117	7089669110902928	CMakeFiles/UndercoverServer.dir/socket.cpp.obj	2b172015f7597d5f
+5	1045	7089669110195058	CMakeFiles/UndercoverServer.dir/main.cpp.obj	3babb14c6df2a34b
 1132	1240	7086282799780325	UndercoverServer.exe	59f6e7acca6a20fa
-1	134	7089548526758281	build.ninja	fefa0b022a18512e
+12	468	7089669104428033	CMakeFiles/UndercoverServer.dir/OpenSSLWrapper.cpp.obj	35f19f45b8d2f78e
+1	134	7089670154322508	build.ninja	fefa0b022a18512e
+9	456	7089669104318011	CMakeFiles/UndercoverServer.dir/sessions.cpp.obj	8893c447d8ec59ee
+1	57	7089670159382446	CMakeFiles/UndercoverServer.dir/sessions.cpp.obj	297376ee6ec03a87
+4	286	7089670161672417	CMakeFiles/UndercoverServer.dir/OpenSSLWrapper.cpp.obj	558d7bd9d9ba3346
+8	4546	7089670204273130	CMakeFiles/UndercoverServer.dir/main.cpp.obj	73d2575892b2fda0
+13	4708	7089670205892538	CMakeFiles/UndercoverServer.dir/socket.cpp.obj	6a2242cb31388e09
+4708	4825	7089670207032532	UndercoverServer.exe	5862ffe1fb9e31a5

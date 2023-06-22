@@ -29,25 +29,25 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 10,
+				"line" : 11,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 15,
+				"line" : 16,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 18,
+				"line" : 23,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 14,
+				"line" : 15,
 				"parent" : 0
 			}
 		]
@@ -58,10 +58,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "/DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -MDd -Zi"
-				},
-				{
-					"fragment" : "-std:c++17"
+					"fragment" : "-O3 -DNDEBUG -fdiagnostics-color=always"
 				}
 			],
 			"includes" : 
@@ -96,40 +93,40 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "/DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -MDd -Zi",
+				"fragment" : "-O3 -DNDEBUG",
 				"role" : "flags"
 			},
 			{
-				"fragment" : "/machine:x64 /debug /INCREMENTAL /subsystem:console",
+				"fragment" : "-static-libgcc -static-libstdc++ -static -lpthread",
 				"role" : "flags"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\VC\\libssl64MDd.lib\"",
+				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\libssl.lib\"",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\VC\\libcrypto64MDd.lib\"",
+				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\libcrypto.lib\"",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 3,
-				"fragment" : "ws2_32.lib",
+				"fragment" : "-lws2_32",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 3,
-				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\VC\\libssl64MDd.lib\"",
+				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\libssl.lib\"",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 3,
-				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\VC\\libcrypto64MDd.lib\"",
+				"fragment" : "\"C:\\Program Files\\OpenSSL-Win64\\lib\\libcrypto.lib\"",
 				"role" : "libraries"
 			},
 			{
-				"fragment" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib",
+				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
 				"role" : "libraries"
 			}
 		],

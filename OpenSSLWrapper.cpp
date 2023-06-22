@@ -21,7 +21,7 @@ void OpenSSLHelper::Cleanup() {
 }
 
 SSL_CTX* OpenSSLHelper::CreateContext() {
-    const SSL_METHOD* method = SSLv23_server_method(); // Use SSLv23 method for compatibility
+    const SSL_METHOD* method = SSLv23_server_method();
     SSL_CTX* ctx = SSL_CTX_new(method);
     if (!ctx) {
         ERR_print_errors_fp(stderr);
@@ -31,8 +31,6 @@ SSL_CTX* OpenSSLHelper::CreateContext() {
 }
 
 void OpenSSLHelper::ConfigureContext(SSL_CTX* ctx) {
-    // Enable automatic ECDH curve selection
-    // Load server's certificate and private key
     if (SSL_CTX_use_certificate_file(ctx, "..\\server.crt", SSL_FILETYPE_PEM) <= 0) {
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);
