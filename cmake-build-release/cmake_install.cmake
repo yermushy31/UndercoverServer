@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/vecto/CLionProjects/UndercoverClient
+# Install script for directory: C:/Users/yermushy/CLionProjects/UndercoverClient
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/vecto/CLionProjects/UndercoverClient/cmake-build-release/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/yermushy/CLionProjects/UndercoverClient/cmake-build-release/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

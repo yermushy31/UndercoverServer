@@ -4,11 +4,47 @@
 #include <WS2tcpip.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <mutex>
+#include <thread>
 
 class Client {
 public:
     Client(const std::string& serverIP, int serverPort)
             : serverIP(serverIP), serverPort(serverPort), clientSocket(INVALID_SOCKET), sslContext(nullptr), sslSocket(nullptr) {}
+
+    void SendMessage(SSL* ssl) {
+        std::string input;
+        std::cout << "test~# ";
+        std::getline(std::cin, input);
+        const char* data = input.c_str();
+        int bytesSent = 0;
+        int totalBytes = input.length();
+        while (bytesSent < totalBytes) {
+            int bytesRemaining = totalBytes - bytesSent;
+            int bytesToSend = (bytesRemaining < 4096) ? bytesRemaining : 4096;
+            if (SSL_write(ssl, data + bytesSent, bytesToSend) == -1) {
+                std::cout << "Failed to send data to server " << std::endl;
+                break;
+            }
+            bytesSent += bytesToSend;
+        }
+    }
+
+    void ReceiveMessage(SSL* ssl) {
+        char buffer[4096];
+        int bytesRead;
+
+        while (true) {
+            bytesRead = SSL_read(sslSocket, buffer, sizeof(buffer) - 1);
+            if (bytesRead <= 0) {
+                std::cout << "Failed to receive data from the server." << std::endl;
+                break;
+            }
+
+            buffer[bytesRead] = '\0';
+            std::cout << "Server response: " << buffer << std::endl;
+        }
+    }
 
     bool Connect() {
         WSADATA wsData;
@@ -81,21 +117,15 @@ public:
     }
 
     void Run() {
-        std::string input;
-        char buffer[4096];
-        int bytesRead;
+        std::thread recvThread(&Client::ReceiveMessage, this, sslSocket);
+        recvThread.detach();
 
         while (true) {
-            bytesRead = SSL_read(sslSocket, buffer, sizeof(buffer) - 1);
-            if (bytesRead <= 0) {
-                std::cout << "Failed to receive data from the server." << std::endl;
-                break;
-            }
-
-            buffer[bytesRead] = '\0';
-            std::cout << "Server response: " << buffer << std::endl;
+            SendMessage(sslSocket);
         }
+    }
 
+    void Detach() {
         SSL_shutdown(sslSocket);
         SSL_free(sslSocket);
         SSL_CTX_free(sslContext);
@@ -115,10 +145,11 @@ int main() {
     std::string serverIP = "127.0.0.1";
     int serverPort = 5555;
     Client client(serverIP, serverPort);
-    while(true) {
+    while (true) {
         if (client.Connect()) {
             client.Run();
         }
+        client.Detach();
     }
 
     return 0;

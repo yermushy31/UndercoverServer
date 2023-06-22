@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "UndercoverClient::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-UndercoverClient-Debug-dde7090dbafbff12990f.json",
+					"jsonFile" : "target-UndercoverClient-Debug-19abbfdfeac7e50a77a8.json",
 					"name" : "UndercoverClient",
 					"projectIndex" : 0
 				}
@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/vecto/CLionProjects/UndercoverClient/cmake-build-debug",
-		"source" : "C:/Users/vecto/CLionProjects/UndercoverClient"
+		"build" : "C:/Users/yermushy/CLionProjects/UndercoverClient/cmake-build-debug",
+		"source" : "C:/Users/yermushy/CLionProjects/UndercoverClient"
 	},
 	"version" : 
 	{
