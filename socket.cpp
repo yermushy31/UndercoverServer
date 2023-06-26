@@ -16,6 +16,36 @@ bool NewServer::InitWsa() {
     return true;
 }
 
+std::string NewServer::GetNameFromList(int index) {
+    return connections[index].name;
+}
+
+
+void NewServer::RenameClient(const std::string inputStr) {
+    std::istringstream iss(inputStr);
+    std::string command;
+    iss >> command;
+    std::string clientId;
+    iss >> clientId;
+    std::string newname;
+    iss >> newname;
+
+    if (!clientId.empty() && !newname.empty()) {
+        try {
+            int id = std::stoi(clientId);
+            if (id >= 0 && id < connections.size()) {
+                connections[id].name = newname;
+                std::cout << "Client " << id << " name updated to: " << connections[id].name << std::endl;
+            } else {
+                std::cout << "Invalid client ID." << std::endl;
+            }
+        } catch (const std::exception& e) {
+            std::cout << "Invalid client ID format. Please enter a valid integer." << std::endl;
+        }
+    } else {
+        std::cout << "Please provide both client ID and new name." << std::endl;
+    }
+}
 
 void NewServer::DisplayClients() {
     if (connections.size() != 0) {
@@ -30,14 +60,7 @@ void NewServer::DisplayClients() {
     }
 }
 
-
-
-
 void NewServer::ReceiveMessage(SSL* ssl) {
-    std::thread::id currentThreadId = std::this_thread::get_id();
-    std::cout << "New Thread Created with the ID: " << currentThreadId << std::endl;
-
-    std::cout << "Client number " << connections.size() - 1 << " got the ID " << currentThreadId << std::endl;
     int res;
     bool continueReceiving = true;
 
@@ -45,12 +68,12 @@ void NewServer::ReceiveMessage(SSL* ssl) {
         res = SSL_read(ssl, recvBuffer, sizeof(recvBuffer) - 1);
         if (res > 0) {
             recvBuffer[res] = '\0';
-            std::cout  << recvBuffer;
+            std::cout.write(recvBuffer, res);
         } else {
             continueReceiving = false;
         }
     }
-
+    connections[connections.size()-1].isconnected = false;
     std::cout << "Client number [" << connections.size() - 1 << "] disconnected" << std::endl;
     std::lock_guard<std::mutex> lock(clientMutex);
     connections.erase(connections.begin() + connections.size() - 1);
@@ -87,19 +110,19 @@ void NewServer::HandleInput() {
                 try {
                     int id = std::stoi(clientId);
                     if (id >= 0 && id < connections.size()) {
-                        while (true) {
+                        while (connections[id].isconnected) {
                             memset(sendBuffer, 0x0, sizeof(sendBuffer));
                             std::cout << "Client~" << id << "#";
                             std::getline(std::cin, inputStr);
 
-                            if (inputStr.find("exit") != std::string::npos) {
+                            if (inputStr.find("quit") != std::string::npos) {
                                 id = 0;
                                 break;
                             }
                             if (inputStr.find("scmd") != std::string::npos) {
+                                SendMessage(id, inputStr.c_str(), inputStr.size());
                                 while(true) {
                                     if (inputStr.find("exit") != std::string::npos) {
-
                                         break;
                                     }
                                     std::cout << "Client~" << id << "[CMD]#";
@@ -119,34 +142,12 @@ void NewServer::HandleInput() {
         } else if (inputStr == "sclient") {
             this->DisplayClients();
         } else if (inputStr.substr(0, 8) == "renamecl") {
-            std::istringstream iss(inputStr);
-            std::string command;
-            iss >> command;
-            std::string clientId;
-            iss >> clientId;
-            std::string newname;
-            iss >> newname;
-
-            if (!clientId.empty() && !newname.empty()) {
-                try {
-                    int id = std::stoi(clientId);
-                    if (id >= 0 && id < connections.size()) {
-                        connections[id].name = newname;
-                        std::cout << "Client " << id << " name updated to: " << connections[id].name << std::endl;
-                    } else {
-                        std::cout << "Invalid client ID." << std::endl;
-                    }
-                } catch (const std::exception& e) {
-                    std::cout << "Invalid client ID format. Please enter a valid integer." << std::endl;
-                }
-            } else {
-                std::cout << "Please provide both client ID and new name." << std::endl;
-            }
+            RenameClient(inputStr);
         }
         else if (inputStr == "clear") {
             system("cls");
         }
-        else if (inputStr == "quit") {
+        else if (inputStr == "abort") {
             Cleanup();
         }
     } while (!terminateProgram);

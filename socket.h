@@ -22,11 +22,6 @@ struct ClientPacket {
     bool isconnected;
 };
 
-
-struct ServerPacket {
-
-};
-
 class NewServer {
 public:
     NewServer(const std::string& ip, int port);
@@ -40,8 +35,9 @@ private:
     void ReceiveMessage(SSL* ssl);
     void SendMessage(int id, const char* data, int totalBytes);
     void HandleInput();
-
+    void RenameClient(const std::string inputStr);
     SOCKET CreateNewSocket(const std::string& ip, int port);
+    std::string GetNameFromList(int index);
     SOCKET clientSocket;
     std::mutex clientMutex;
     std::vector<ClientPacket> connections;
