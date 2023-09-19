@@ -36,6 +36,7 @@ private:
     void SendMessage(int id, const char* data, int totalBytes);
     void HandleInput();
     void RenameClient(const std::string inputStr);
+    void SplitArgs(const std::string input);
     SOCKET CreateNewSocket(const std::string& ip, int port);
     std::string GetNameFromList(int index);
     SOCKET clientSocket;

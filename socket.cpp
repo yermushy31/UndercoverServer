@@ -19,7 +19,21 @@ bool NewServer::InitWsa() {
 std::string NewServer::GetNameFromList(int index) {
     return connections[index].name;
 }
+/*
+std::vector NewServer::SplitArgs(const std::string input) {
+    std::vector<std::string> arguments;
+    std::istringstream iss(inputStr);
+    std::string command;
+    iss >> command;
+    std::string clientId;
+    iss >> clientId;
+    std::string newname;
+    iss >> newname;
+    arguments.push_back(clientId);
+    arguments.push_back(newname);
 
+    return arguments;
+}*/
 
 void NewServer::RenameClient(const std::string inputStr) {
     std::istringstream iss(inputStr);
@@ -248,5 +262,5 @@ void NewServer::Cleanup() {
     opensslHelper.Cleanup();
     closesocket(serverSocket);
     WSACleanup();
-    exit(1);
+    exit(0);
 }
