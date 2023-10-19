@@ -1,7 +1,5 @@
 #include "features.h"
 
-#include "features.h"
-
 void features::PrintAvailableAudioDevices() {
     UINT numDevices = waveInGetNumDevs();
 
