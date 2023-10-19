@@ -68,7 +68,7 @@ public:
         si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);  // Enable input from the user
         si.dwFlags |= STARTF_USESTDHANDLES;
 
-        std::string fullCmd = "cmd.exe /C " + cmd; // Construct the full command
+        std::string fullCmd = "cmd.exe /C " + cmd;
 
         if (!CreateProcessA(NULL, const_cast<char*>(fullCmd.c_str()), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
             std::string errorMessage = "Failed to create child process: " + std::to_string(GetLastError());

@@ -1,3 +1,0 @@
-C:/Users/yermushy/CLionProjects/UndercoverClient/cmake-build-release/CMakeFiles/UndercoverClient.dir
-C:/Users/yermushy/CLionProjects/UndercoverClient/cmake-build-release/CMakeFiles/edit_cache.dir
-C:/Users/yermushy/CLionProjects/UndercoverClient/cmake-build-release/CMakeFiles/rebuild_cache.dir

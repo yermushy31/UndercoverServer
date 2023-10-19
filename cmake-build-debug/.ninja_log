@@ -1,6 +1,0 @@
-# ninja log v5
-804	952	7086113591791515	UndercoverClient.exe	6c395ed3b0073d9
-0	804	7086113590483461	CMakeFiles/UndercoverClient.dir/main.cpp.obj	ceaa72076b52dc88
-0	270	7089670160442407	build.ninja	91862c958bf7989d
-0	1069	7089672863342349	CMakeFiles/UndercoverClient.dir/main.cpp.obj	86d1e54767078898
-1071	1374	7089672866372407	UndercoverClient.exe	87c1dcc399f31a94
