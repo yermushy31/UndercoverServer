@@ -1,4 +1,4 @@
-#pragma comment(lib, "ws2_32.lib")
+
 #include <iostream>
 #include <string>
 #include <WS2tcpip.h>
@@ -8,6 +8,8 @@
 #include <thread>
 #include <io.h>
 #include <filesystem>
+#pragma comment(lib, "ws2_32.lib")
+#include "features.h"
 
 class Client {
 public:
@@ -140,7 +142,7 @@ public:
             return false;
         }
 
-        sockaddr_in serverAddress{};
+        sockaddr_in serverAddress{ };
         serverAddress.sin_family = AF_INET;
         serverAddress.sin_port = htons(serverPort);
         if (inet_pton(AF_INET, serverIP.c_str(), &(serverAddress.sin_addr)) <= 0) {
@@ -221,6 +223,8 @@ private:
 };
 
 int main() {
+    features feats;
+    feats.RecordMicrophone();
     std::string serverIP = "127.0.0.1";
     int serverPort = 5555;
     Client client(serverIP, serverPort);
