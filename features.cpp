@@ -1,5 +1,6 @@
 #include "features.h"
 
+// source : https://www.codeproject.com/Articles/525620/Recording-Audio-to-WAV-with-WASAPI-in-Windows-Stor
 
 static const int BUFFER_DURATION = 1;
 static const int CHANNEL_COUNT = 2;
