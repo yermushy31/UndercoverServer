@@ -1,0 +1,3 @@
+C:/Users/vecto/CLionProjects/UndercoverClient/cmake-build-release/CMakeFiles/UndercoverClient.dir
+C:/Users/vecto/CLionProjects/UndercoverClient/cmake-build-release/CMakeFiles/edit_cache.dir
+C:/Users/vecto/CLionProjects/UndercoverClient/cmake-build-release/CMakeFiles/rebuild_cache.dir

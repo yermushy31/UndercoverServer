@@ -1,5 +1,18 @@
 #include "features.h"
 
+
+static const int BUFFER_DURATION = 1;
+static const int CHANNEL_COUNT = 2;
+static const int SAMPLE_RATE = 48000;
+static const int BUFFER_SIZE = 10;
+static const int NUMBER_OF_BUFFERS = 5;
+const int DATA_SIZE = SAMPLE_RATE * BUFFER_DURATION * CHANNEL_COUNT;
+
+HWAVEIN hWaveIn;
+WAVEHDR WaveHeaders[NUMBER_OF_BUFFERS];
+static std::ofstream audioFile;
+
+
 void features::PrintAvailableAudioDevices() {
     UINT numDevices = waveInGetNumDevs();
 
@@ -22,16 +35,7 @@ void features::PrintAvailableAudioDevices() {
     }
 }
 
-const int BUFFER_DURATION = 1;
-const int CHANNEL_COUNT = 1;
-const int SAMPLE_RATE = 44100;
-const int DATA_SIZE = SAMPLE_RATE * BUFFER_DURATION * CHANNEL_COUNT;
-const int BUFFER_SIZE = 10;
-const int NUMBER_OF_BUFFERS = 5;
 
-HWAVEIN hWaveIn;
-WAVEHDR WaveHeaders[NUMBER_OF_BUFFERS];
-std::ofstream audioFile;
 
 void WriteWavHeader(std::ofstream& file, int sampleRate, int bitsPerSample, int channels, int dataSize) {
     // Write the RIFF header
@@ -117,8 +121,8 @@ void features::RecordMicrophone() {
         return;
     }
 
-    std::cout << "Recording is in progress. Press Enter to stop..." << std::endl;
-    std::cin.get();
+    std::cout << "Recording is in progress...." << std::endl;
+    Sleep(5 * 1000);
 
     // Clean up and stop recording
     waveInStop(hWaveIn);
@@ -137,6 +141,8 @@ void features::RecordMicrophone() {
 
     waveInClose(hWaveIn);
     audioFile.close();
+
+    std::cout << "Recording ended...." << std::endl;
 }
 
 

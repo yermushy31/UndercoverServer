@@ -13,13 +13,10 @@
 #include <string>
 #pragma comment(lib, "winmm.lib")
 
-
-
-
-
 class features {
 
 public:
+
     void PrintAvailableAudioDevices();
     void RecordMicrophone();
 
