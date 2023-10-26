@@ -10,6 +10,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <io.h>
+#include <unordered_map>
 
 #include "OpenSSLWrapper.h"
 #pragma comment(lib, "ws2_32.lib")
@@ -21,6 +22,8 @@ struct ClientPacket {
     int port;
     bool isconnected;
 };
+
+
 
 class NewServer {
 public:
@@ -35,8 +38,8 @@ private:
     void ReceiveMessage(SSL* ssl);
     void SendMessage(int id, const char* data, int totalBytes);
     void HandleInput();
+    void CmdMode(int id, std::string buffer);
     void RenameClient(const std::string inputStr);
-    void SplitArgs(const std::string input);
     SOCKET CreateNewSocket(const std::string& ip, int port);
     std::string GetNameFromList(int index);
     SOCKET clientSocket;
@@ -44,6 +47,7 @@ private:
     std::vector<ClientPacket> connections;
     std::vector<std::thread> receiveThreads;
 
+    bool cmd_mode = false;
     bool terminateProgram;
     char recvBuffer[4096];
     char sendBuffer[4096];

@@ -1,6 +1,6 @@
 #include "socket.h"
 
-NewServer::NewServer(const std::string& ip, int port) : sslContext(nullptr), terminateProgram(false) {
+NewServer::NewServer(const std::string &ip, int port) : sslContext(nullptr), terminateProgram(false) {
     serverSocket = CreateNewSocket(ip, port);
 }
 
@@ -19,21 +19,7 @@ bool NewServer::InitWsa() {
 std::string NewServer::GetNameFromList(int index) {
     return connections[index].name;
 }
-/*
-std::vector NewServer::SplitArgs(const std::string input) {
-    std::vector<std::string> arguments;
-    std::istringstream iss(inputStr);
-    std::string command;
-    iss >> command;
-    std::string clientId;
-    iss >> clientId;
-    std::string newname;
-    iss >> newname;
-    arguments.push_back(clientId);
-    arguments.push_back(newname);
 
-    return arguments;
-}*/
 
 void NewServer::RenameClient(const std::string inputStr) {
     std::istringstream iss(inputStr);
@@ -53,7 +39,7 @@ void NewServer::RenameClient(const std::string inputStr) {
             } else {
                 std::cout << "Invalid client ID." << std::endl;
             }
-        } catch (const std::exception& e) {
+        } catch (const std::exception &e) {
             std::cout << "Invalid client ID format. Please enter a valid integer." << std::endl;
         }
     } else {
@@ -66,15 +52,24 @@ void NewServer::DisplayClients() {
         std::cout << "Clients List >>>" << std::endl;
         std::lock_guard<std::mutex> lock(clientMutex);
         for (size_t i = 0; i < connections.size(); i++) {
-            std::cout << "[" << i << "] "<< connections[i].name << " " << connections[i].ip << ":" << connections[i].port << std::endl;
+            std::cout << "[" << i << "] " << connections[i].name << " " << connections[i].ip << ":" << connections[i].port << std::endl;
         }
-    }
-    else {
+    } else {
         std::cout << "No clients are connected at the moment" << std::endl;
     }
 }
 
-void NewServer::ReceiveMessage(SSL* ssl) {
+
+void NewServer::CmdMode(int id, std::string buffer) {
+    std::cout << "Client~" << id << "[CMD-mode]>#";
+    std::getline(std::cin, buffer);
+    if (buffer.find("exit") != std::string::npos) {
+        cmd_mode = false;
+    }
+    SendMessage(id, buffer.c_str(), buffer.size());
+}
+
+void NewServer::ReceiveMessage(SSL *ssl) {
     int res;
     bool continueReceiving = true;
 
@@ -87,7 +82,7 @@ void NewServer::ReceiveMessage(SSL* ssl) {
             continueReceiving = false;
         }
     }
-    connections[connections.size()-1].isconnected = false;
+    connections[connections.size() - 1].isconnected = false;
     std::cout << "Client number [" << connections.size() - 1 << "] disconnected" << std::endl;
     std::lock_guard<std::mutex> lock(clientMutex);
     connections.erase(connections.begin() + connections.size() - 1);
@@ -134,14 +129,10 @@ void NewServer::HandleInput() {
                                 break;
                             }
                             if (inputStr.find("scmd") != std::string::npos) {
+                                cmd_mode = true;
                                 SendMessage(id, inputStr.c_str(), inputStr.size());
-                                while(true) {
-                                    if (inputStr.find("exit") != std::string::npos) {
-                                        break;
-                                    }
-                                    std::cout << "Client~" << id << "[CMD]#";
-                                    std::getline(std::cin, inputStr);
-                                    SendMessage(id, inputStr.c_str(), inputStr.size());
+                                while (cmd_mode) {
+                                    this->CmdMode(id, inputStr);
                                 }
                             }
                             SendMessage(id, inputStr.c_str(), inputStr.size());
@@ -149,25 +140,23 @@ void NewServer::HandleInput() {
                     } else {
                         std::cout << "Invalid client ID." << std::endl;
                     }
-                } catch (const std::exception& e) {
+                } catch (const std::exception &e) {
                     std::cout << "Invalid client ID format. Please enter a valid integer." << std::endl;
                 }
             }
         } else if (inputStr == "sclient") {
             this->DisplayClients();
         } else if (inputStr.substr(0, 8) == "renamecl") {
-            RenameClient(inputStr);
-        }
-        else if (inputStr == "clear") {
+            this->RenameClient(inputStr);
+        } else if (inputStr == "clear") {
             system("cls");
-        }
-        else if (inputStr == "abort") {
-            Cleanup();
+        } else if (inputStr == "abort") {
+            this->Cleanup();
         }
     } while (!terminateProgram);
 }
 
-SOCKET NewServer::CreateNewSocket(const std::string& ip, int port) {
+SOCKET NewServer::CreateNewSocket(const std::string &ip, int port) {
     if (!opensslHelper.Initialize()) {
         std::cout << "Failed to initialize OpenSSL." << std::endl;
         return INVALID_SOCKET;
@@ -186,7 +175,7 @@ SOCKET NewServer::CreateNewSocket(const std::string& ip, int port) {
         serverAddress.sin_addr.s_addr = inet_addr(ip.c_str());
         serverAddress.sin_port = htons(port);
 
-        if (bind(sock, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
+        if (bind(sock, (SOCKADDR *) &serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
             std::cout << "Bind Error." << std::endl;
             closesocket(sock);
             WSACleanup();
@@ -218,13 +207,13 @@ void NewServer::StartServer() {
     while (!terminateProgram) {
         SOCKADDR_IN newClientAddr;
         int newClientLength = sizeof(newClientAddr);
-        SOCKET clientSocket = accept(serverSocket, (SOCKADDR*)&newClientAddr, &newClientLength);
+        SOCKET clientSocket = accept(serverSocket, (SOCKADDR *) &newClientAddr, &newClientLength);
         if (clientSocket == INVALID_SOCKET) {
             std::cout << "Accept Error." << std::endl;
             continue;
         }
 
-        SSL* ssl = SSL_new(sslContext);
+        SSL *ssl = SSL_new(sslContext);
         SSL_set_fd(ssl, clientSocket);
         if (SSL_accept(ssl) <= 0) {
             ERR_print_errors_fp(stderr);
@@ -243,7 +232,8 @@ void NewServer::StartServer() {
         std::thread recvThread(&NewServer::ReceiveMessage, this, ssl);
         recvThread.detach();
 
-        std::cout << "New Host connected, IP " << inet_ntoa(newClientAddr.sin_addr) << ", port " << ntohs(newClientAddr.sin_port) << std::endl;
+        std::cout << "New Host connected, IP " << inet_ntoa(newClientAddr.sin_addr) << ", port "
+                  << ntohs(newClientAddr.sin_port) << " With ID : " << connections.size() - 1 << std::endl;
     }
 }
 
