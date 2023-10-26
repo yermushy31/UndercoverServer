@@ -128,7 +128,7 @@ void features::RecordMicrophone() {
     // Clean up and stop recording
     waveInStop(hWaveIn);
     waveInReset(hWaveIn);
-
+    std::cout << "Recording ended...." << std::endl;
     for (int i = 0; i < NUMBER_OF_BUFFERS; i++) {
         waveInUnprepareHeader(hWaveIn, &WaveHeaders[i], sizeof(WAVEHDR));
         delete[] WaveHeaders[i].lpData;
@@ -143,9 +143,8 @@ void features::RecordMicrophone() {
     waveInClose(hWaveIn);
     audioFile.close();
 
-    std::cout << "Recording ended...." << std::endl;
-}
 
+}
 
 
 

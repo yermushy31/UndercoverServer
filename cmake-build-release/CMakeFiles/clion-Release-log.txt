@@ -1,4 +1,4 @@
-"C:\Program Files\JetBrains\CLion 2023.1.3\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - MinGW Makefiles" -S C:\Users\vecto\CLionProjects\UndercoverClient -B C:\Users\vecto\CLionProjects\UndercoverClient\cmake-build-release
+"C:\Program Files\JetBrains\CLion 2023.1.3\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2023.1.3/bin/ninja/win/x64/ninja.exe" -G Ninja -S C:\Users\yermushy\CLionProjects\UndercoverClient -B C:\Users\yermushy\CLionProjects\UndercoverClient\cmake-build-release
 -- Configuring done
 -- Generating done
--- Build files have been written to: C:/Users/vecto/CLionProjects/UndercoverClient/cmake-build-release
+-- Build files have been written to: C:/Users/yermushy/CLionProjects/UndercoverClient/cmake-build-release
