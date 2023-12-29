@@ -1,8 +1,0 @@
-//
-// Created by vecto on 18/06/2023.
-//
-
-#ifndef UNDERCOVERSERVER_SESSIONS_H
-#define UNDERCOVERSERVER_SESSIONS_H
-
-#endif //UNDERCOVERSERVER_SESSIONS_H

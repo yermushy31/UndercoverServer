@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 
 # Add the source files
-set(SOURCES main.cpp socket.cpp OpenSSLWrapper.cpp socket.h OpenSSLWrapper.h sessions.h sessions.cpp)
+set(SOURCES main.cpp  OpenSSLWrapper.cpp  OpenSSLWrapper.h socket.h socket.cpp)
 
 # Create the executable target
 add_executable(UndercoverServer ${SOURCES})

