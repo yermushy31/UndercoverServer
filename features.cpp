@@ -13,6 +13,14 @@ HWAVEIN hWaveIn;
 WAVEHDR WaveHeaders[NUMBER_OF_BUFFERS];
 static std::ofstream audioFile;
 
+std::mutex recordingMutex;
+std::mutex cvMutex;
+std::mutex resetMutex;
+std::condition_variable cv;
+bool recordingFinished = false;
+bool isResetInProgress = false;
+
+std::mutex &callbackMutex = *new std::mutex();
 
 void features::PrintAvailableAudioDevices() {
     UINT numDevices = waveInGetNumDevs();
@@ -66,6 +74,11 @@ void WriteWavHeader(std::ofstream& file, int sampleRate, int bitsPerSample, int 
 
 void CALLBACK waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
     if (uMsg == WIM_DATA) {
+        if (isResetInProgress) {
+            return;
+        }
+
+        std::lock_guard<std::mutex> lock(callbackMutex);
         WAVEHDR* pWaveHeader = (WAVEHDR*)dwParam1;
 
         audioFile.write(pWaveHeader->lpData, pWaveHeader->dwBufferLength);
@@ -77,7 +90,30 @@ void CALLBACK waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR
         pWaveHeader->dwBufferLength = DATA_SIZE;
         waveInPrepareHeader(hWaveIn, pWaveHeader, sizeof(WAVEHDR));
         waveInAddBuffer(hWaveIn, pWaveHeader, sizeof(WAVEHDR));
+
+        // Check if recording has finished
+        {
+            std::lock_guard<std::mutex> lock(recordingMutex);
+            if (recordingFinished) {
+                cv.notify_one();
+            }
+        }
     }
+}
+
+std::string GenerateRandomWavFileName() {
+    // Generate a timestamp-based seed for randomization
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
+
+    // Generate a random number and convert it to a string
+    int randomValue = std::rand();
+    std::stringstream ss;
+    ss << randomValue;
+
+    // Create a file name using the random number and current timestamp
+    std::string fileName = "audio_" + ss.str() + "_" + std::to_string(std::time(nullptr)) + ".wav";
+
+    return fileName;
 }
 
 void features::RecordMicrophone() {
@@ -91,12 +127,13 @@ void features::RecordMicrophone() {
     waveform.cbSize = 0;
 
     MMRESULT result = waveInOpen(&hWaveIn, WAVE_MAPPER, &waveform, (DWORD_PTR)waveInProc, 0, CALLBACK_FUNCTION);
+
     if (result != MMSYSERR_NOERROR) {
         std::cerr << "waveInOpen failed with error code: " << result << std::endl;
         return;
     }
 
-    audioFile.open("recorded_audio.wav", std::ios::binary);
+    audioFile.open(GenerateRandomWavFileName(), std::ios::binary);
 
     // Write the WAV file header
     WriteWavHeader(audioFile, SAMPLE_RATE, 16, CHANNEL_COUNT, 0);
@@ -123,26 +160,44 @@ void features::RecordMicrophone() {
     }
 
     std::cout << "Recording is in progress...." << std::endl;
-    Sleep(5 * 1000);
+    {
+        std::unique_lock<std::mutex> lock(cvMutex);
+        cv.wait_for(lock, std::chrono::seconds(5), [&] { return recordingFinished; });
+    }
+    {
+        std::lock_guard<std::mutex> lock(resetMutex);
+        isResetInProgress = true;
+    }
+    MMRESULT stopResult = waveInStop(hWaveIn);
+    if (stopResult != MMSYSERR_NOERROR) {
+        std::cerr << "waveInStop failed with error code: " << stopResult << std::endl;
+    }
+    std::cout << "Wave iN STOP EXECUTED" << std::endl;
 
-    // Clean up and stop recording
-    waveInStop(hWaveIn);
-    waveInReset(hWaveIn);
-    std::cout << "Recording ended...." << std::endl;
     for (int i = 0; i < NUMBER_OF_BUFFERS; i++) {
         waveInUnprepareHeader(hWaveIn, &WaveHeaders[i], sizeof(WAVEHDR));
         delete[] WaveHeaders[i].lpData;
     }
 
-    // Calculate and update the data size in the header
+    MMRESULT resetResult = waveInReset(hWaveIn);
+    std::cout << "Wave iN RESET EXECUTED" << std::endl;
+    if (resetResult != MMSYSERR_NOERROR) {
+        std::cerr << "waveInReset failed with error code: " << resetResult << std::endl;
+    }
+    {
+        std::lock_guard<std::mutex> lock(resetMutex);
+        isResetInProgress = false;
+    }
+
     std::streampos fileSize = audioFile.tellp();
     DWORD dataSize = static_cast<DWORD>(fileSize) - 44;
-    audioFile.seekp(40, std::ios::beg); // Move to the position where the data size is stored
+    audioFile.seekp(40, std::ios::beg);
     audioFile.write(reinterpret_cast<const char*>(&dataSize), 4);
-
+     std::cout << "audio file seeking executed" << std::endl;
     waveInClose(hWaveIn);
+    std::cout << "wave In close executed" << std::endl;
     audioFile.close();
-
+    std::cout << "Recording ended...." << std::endl;
 
 }
 

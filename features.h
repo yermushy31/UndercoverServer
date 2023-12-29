@@ -11,13 +11,20 @@
 #include <mmsystem.h>
 #include <iostream>
 #include <string>
+#include <mutex>
+#include <thread>
+#include <sstream>
+#include <future>
+
 #pragma comment(lib, "winmm.lib")
 
 class features {
 
+
 public:
 
     void PrintAvailableAudioDevices();
+    //void RecordingThread();
     void RecordMicrophone();
 
 };
